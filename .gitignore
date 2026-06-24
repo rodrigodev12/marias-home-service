@@ -1,0 +1,19 @@
+# Ambiente virtual
+.venv/
+venv/
+env/
+
+# Cache Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Banco de dados local (não sobe pro GitHub)
+database.db
+
+# Variáveis de ambiente locais
+.env
+
+# IDEs
+.vscode/
+.idea/

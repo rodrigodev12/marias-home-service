@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+{% block title %}Dashboard · Maria's Home Service{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<!-- ── Stat cards ── -->
+<div class="row g-4 mb-4">
+
+  <div class="col-sm-6 col-xl-4">
+    <div class="card stat-card p-4 h-100">
+      <div class="d-flex align-items-center gap-3">
+        <div class="icon-box" style="background:#ede9fe;">
+          <i class="bi bi-people-fill" style="color:#7c3aed;"></i>
+        </div>
+        <div>
+          <div class="stat-value">{{ total_clientes }}</div>
+          <div class="stat-label">Clientes Cadastrados</div>
+        </div>
+      </div>
+      <a href="{{ url_for('listar_clientes') }}" class="stretched-link"></a>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-4">
+    <div class="card stat-card p-4 h-100">
+      <div class="d-flex align-items-center gap-3">
+        <div class="icon-box" style="background:#fce7f3;">
+          <i class="bi bi-person-badge-fill" style="color:#ec4899;"></i>
+        </div>
+        <div>
+          <div class="stat-value">{{ total_prestadoras }}</div>
+          <div class="stat-label">Prestadoras Ativas</div>
+        </div>
+      </div>
+      <a href="{{ url_for('listar_prestadoras') }}" class="stretched-link"></a>
+    </div>
+  </div>
+
+  <div class="col-sm-6 col-xl-4">
+    <div class="card stat-card p-4 h-100">
+      <div class="d-flex align-items-center gap-3">
+        <div class="icon-box" style="background:#d1fae5;">
+          <i class="bi bi-calendar2-check-fill" style="color:#059669;"></i>
+        </div>
+        <div>
+          <div class="stat-value">{{ total_agendamentos }}</div>
+          <div class="stat-label">Total de Agendamentos</div>
+        </div>
+      </div>
+      <a href="{{ url_for('listar_agendamentos') }}" class="stretched-link"></a>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Quick actions ── -->
+<div class="d-flex gap-2 flex-wrap mb-4">
+  <a href="{{ url_for('novo_cliente') }}"      class="btn btn-brand"><i class="bi bi-person-plus-fill me-2"></i>Novo Cliente</a>
+  <a href="{{ url_for('nova_prestadora') }}"   class="btn btn-brand"><i class="bi bi-person-video3 me-2"></i>Nova Prestadora</a>
+  <a href="{{ url_for('novo_agendamento') }}"  class="btn btn-brand"><i class="bi bi-calendar-plus-fill me-2"></i>Novo Agendamento</a>
+</div>
+
+<!-- ── Agendamentos de hoje ── -->
+<div class="table-card mb-4">
+  <div class="d-flex align-items-center justify-content-between p-4 pb-2">
+    <h6 class="mb-0 fw-700" style="color:#0c4a34;font-weight:700;">
+      <i class="bi bi-sun-fill me-2" style="color:#f59e0b;"></i>Agendamentos de Hoje
+      <span class="badge rounded-pill ms-2" style="background:#e6edea;color:#0c4a34;font-size:.75rem;">{{ agendamentos_hoje|length }}</span>
+    </h6>
+    <small class="text-muted">{{ hoje }}</small>
+  </div>
+  <div class="table-responsive">
+    <table class="table mb-0">
+      <thead>
+        <tr>
+          <th>#</th><th>Cliente</th><th>Prestadora</th><th>Serviço</th><th>Horário</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if agendamentos_hoje %}
+          {% for a in agendamentos_hoje %}
+          <tr>
+            <td class="text-muted">#{{ a.id }}</td>
+            <td><i class="bi bi-person-circle me-1 text-muted"></i>{{ a.cliente }}</td>
+            <td>
+              <i class="bi bi-person-badge me-1 text-muted"></i>{{ a.prestadora }}
+              {% if not a.id_prestadora %}
+              <button type="button" class="btn btn-sm py-0 px-2 ms-2 btn-brand" style="font-size: .7rem; border-radius: 6px;"
+                      data-bs-toggle="modal" data-bs-target="#modalAtribuir"
+                      data-id="{{ a.id }}"
+                      data-cliente="{{ a.cliente }}"
+                      data-servico="{{ a.servico_agendado }}">
+                Atribuir
+              </button>
+              {% endif %}
+            </td>
+            <td>
+              <span class="badge rounded-pill" style="background:#e6edea;color:#0c4a34;font-size:.78rem;">
+                {{ a.servico_agendado or '—' }}
+              </span>
+            </td>
+            <td><i class="bi bi-clock me-1 text-muted"></i>{{ a.horario }}</td>
+            <td>
+              <span class="badge rounded-pill
+                {% if a.status == 'Pendente' %}badge-pendente
+                {% elif a.status == 'Confirmado' %}badge-confirmado
+                {% else %}badge-concluido{% endif %}">
+                {{ a.status }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr><td colspan="6" class="text-center text-muted py-4">
+            <i class="bi bi-calendar-x fs-3 d-block mb-2"></i>Nenhum agendamento para hoje.
+          </td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── Próximos agendamentos ── -->
+<div class="table-card">
+  <div class="p-4 pb-2">
+    <h6 class="mb-0 fw-700" style="color:#0c4a34;font-weight:700;">
+      <i class="bi bi-calendar2-week-fill me-2" style="color:#ff6b00;"></i>Próximos Agendamentos
+    </h6>
+  </div>
+  <div class="table-responsive">
+    <table class="table mb-0">
+      <thead>
+        <tr>
+          <th>#</th><th>Data</th><th>Cliente</th><th>Prestadora</th><th>Serviço</th><th>Horário</th><th>Status</th><th>Observações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if proximos_agendamentos %}
+          {% for a in proximos_agendamentos %}
+          <tr>
+            <td class="text-muted">#{{ a.id }}</td>
+            <td>{{ a.data }}</td>
+            <td>{{ a.cliente }}</td>
+            <td>
+              {{ a.prestadora }}
+              {% if not a.id_prestadora %}
+              <button type="button" class="btn btn-sm py-0 px-2 ms-2 btn-brand" style="font-size: .7rem; border-radius: 6px;"
+                      data-bs-toggle="modal" data-bs-target="#modalAtribuir"
+                      data-id="{{ a.id }}"
+                      data-cliente="{{ a.cliente }}"
+                      data-servico="{{ a.servico_agendado }}">
+                Atribuir
+              </button>
+              {% endif %}
+            </td>
+            <td>
+              <span class="badge rounded-pill" style="background:#e6edea;color:#0c4a34;font-size:.78rem;">
+                {{ a.servico_agendado or '—' }}
+              </span>
+            </td>
+            <td>{{ a.horario }}</td>
+            <td>
+              <span class="badge rounded-pill
+                {% if a.status == 'Pendente' %}badge-pendente
+                {% elif a.status == 'Confirmado' %}badge-confirmado
+                {% else %}badge-concluido{% endif %}">
+                {{ a.status }}
+              </span>
+            </td>
+            <td>
+              {% if a.observacoes %}
+              <span data-bs-toggle="tooltip" data-bs-placement="top" title="{{ a.observacoes }}"
+                    style="max-width:200px; white-space:normal; word-break:break-word; display:inline-block; font-size:.82rem; color:#4b5563; cursor:help;">{{ a.observacoes }}</span>
+              {% else %}
+              <span class="text-muted" style="font-size:.82rem;">—</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr><td colspan="8" class="text-center text-muted py-4">
+            <i class="bi bi-calendar-check fs-3 d-block mb-2"></i>Nenhum agendamento futuro.
+          </td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── Modal de Atribuir Prestadora ── -->
+<div class="modal fade" id="modalAtribuir" tabindex="-1" aria-labelledby="modalAtribuirLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:16px; border:none; box-shadow: 0 10px 30px rgba(0,0,0,0.15);">
+      <form action="{{ url_for('atribuir_prestadora') }}" method="post">
+        <div class="modal-header border-0 pb-0">
+          <div class="d-flex align-items-center gap-2">
+            <div style="width:40px; height:40px; background:#ede9fe; border-radius:12px; display:flex; align-items:center; justify-content:center;">
+              <i class="bi bi-person-plus-fill" style="color:#7c3aed; font-size:1.1rem;"></i>
+            </div>
+            <h6 class="modal-title mb-0 fw-bold" id="modalAtribuirLabel" style="color:#1e1b4b;">Atribuir Prestadora</h6>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body pt-3">
+          <input type="hidden" id="atribuir_id_agendamento" name="id_agendamento">
+          <p class="text-muted mb-3" style="font-size: .85rem;">
+            Selecione a prestadora para o agendamento de <strong id="atribuir_cliente"></strong> (<span id="atribuir_servico"></span>).
+          </p>
+          <div class="mb-3">
+            <label for="id_prestadora" class="form-label" style="font-size: .85rem; font-weight:600;">Prestadora <span class="text-danger">*</span></label>
+            <select id="id_prestadora" name="id_prestadora" class="form-select" style="border-radius: 10px;" required>
+              <option value="" disabled selected>Escolha uma prestadora...</option>
+              {% for p in prestadoras %}
+              <option value="{{ p.id }}">{{ p.nome }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-light" style="border-radius:10px;" data-bs-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-brand" style="border-radius:10px; font-weight:600;">
+            Confirmar Atribuição
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const modalAtribuir = document.getElementById('modalAtribuir');
+  if (modalAtribuir) {
+    modalAtribuir.addEventListener('show.bs.modal', function(event) {
+      const button = event.relatedTarget;
+      const id = button.dataset.id;
+      const cliente = button.dataset.cliente;
+      const servico = button.dataset.servico;
+      
+      document.getElementById('atribuir_id_agendamento').value = id;
+      document.getElementById('atribuir_cliente').textContent = cliente;
+      document.getElementById('atribuir_servico').textContent = servico;
+    });
+  }
+</script>
+{% endblock %}

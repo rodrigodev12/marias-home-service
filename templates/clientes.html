@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}Clientes · Maria's Home Service{% endblock %}
+{% block page_title %}Clientes{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h5 class="mb-0 fw-bold" style="color:#1e1b4b;">Lista de Clientes</h5>
+    <small class="text-muted">{{ clientes|length }} cliente(s) cadastrado(s)</small>
+  </div>
+  <a href="{{ url_for('novo_cliente') }}" class="btn btn-brand">
+    <i class="bi bi-person-plus-fill me-2"></i>Novo Cliente
+  </a>
+</div>
+
+<div class="table-card">
+  <div class="table-responsive">
+    <table class="table mb-0">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nome</th>
+          <th>Telefone</th>
+          <th>E-mail</th>
+          <th>Endereço</th>
+          <th>Observações</th>
+          <th class="text-center">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if clientes %}
+          {% for c in clientes %}
+          <tr>
+            <td class="text-muted">#{{ c.id }}</td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#ec4899);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.8rem;flex-shrink:0;">
+                  {{ c.nome[0].upper() }}
+                </div>
+                <span class="fw-500">{{ c.nome }}</span>
+              </div>
+            </td>
+            <td>{{ c.telefone or '—' }}</td>
+            <td>{{ c.email or '—' }}</td>
+            <td>{{ c.endereco or '—' }}</td>
+            <td>
+              {% if c.observacoes %}
+                <span class="badge" style="background:#fef3c7;color:#92400e;">{{ c.observacoes }}</span>
+              {% else %}—{% endif %}
+            </td>
+            <td class="text-center">
+              <a href="{{ url_for('editar_cliente', id=c.id) }}" class="btn btn-sm" style="background:#ede9fe;color:#7c3aed;border-radius:8px;" title="Editar">
+                <i class="bi bi-pencil-fill"></i>
+              </a>
+              <!-- Botão que abre o modal -->
+              <button type="button" class="btn btn-sm" style="background:#fee2e2;color:#dc2626;border-radius:8px;" title="Excluir"
+                      data-bs-toggle="modal" data-bs-target="#modalExcluir"
+                      data-id="{{ c.id }}" data-nome="{{ c.nome }}"
+                      data-action="{{ url_for('excluir_cliente', id=c.id) }}">
+                <i class="bi bi-trash-fill"></i>
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="7" class="text-center text-muted py-5">
+              <i class="bi bi-people fs-2 d-block mb-2"></i>
+              Nenhum cliente cadastrado ainda.
+              <a href="{{ url_for('novo_cliente') }}" class="d-block mt-2">Cadastrar primeiro cliente</a>
+            </td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── Modal de confirmação de exclusão ── -->
+<div class="modal fade" id="modalExcluir" tabindex="-1" aria-labelledby="modalExcluirLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:16px;border:none;">
+      <div class="modal-header border-0 pb-0">
+        <div class="d-flex align-items-center gap-2">
+          <div style="width:40px;height:40px;background:#fee2e2;border-radius:12px;display:flex;align-items:center;justify-content:center;">
+            <i class="bi bi-trash-fill" style="color:#dc2626;font-size:1.1rem;"></i>
+          </div>
+          <h6 class="modal-title mb-0 fw-bold" id="modalExcluirLabel" style="color:#1e1b4b;">Confirmar Exclusão</h6>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body pt-3">
+        <p class="mb-0 text-muted" style="font-size:.9rem;">
+          Tem certeza que deseja excluir o cliente <strong id="nomeClienteModal"></strong>?
+          <br><small class="text-danger">Esta ação não pode ser desfeita.</small>
+        </p>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn btn-light" style="border-radius:10px;" data-bs-dismiss="modal">Cancelar</button>
+        <form id="formExcluir" method="post" class="d-inline">
+          <button type="submit" class="btn" style="background:#dc2626;color:#fff;border-radius:10px;font-weight:600;">
+            <i class="bi bi-trash-fill me-1"></i>Excluir
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Preenche o modal com os dados do cliente clicado
+  document.getElementById('modalExcluir').addEventListener('show.bs.modal', function(event) {
+    const btn = event.relatedTarget;
+    document.getElementById('nomeClienteModal').textContent = btn.dataset.nome;
+    document.getElementById('formExcluir').action = btn.dataset.action;
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Novo Agendamento · Maria's Home Service{% endblock %}
+{% block page_title %}Novo Agendamento{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+
+    <div class="d-flex align-items-center gap-2 mb-4">
+      <a href="{{ url_for('listar_agendamentos') }}" class="btn btn-sm" style="background:#d1fae5;color:#065f46;border-radius:8px;">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+      <div>
+        <h5 class="mb-0 fw-bold" style="color:#1e1b4b;">Novo Agendamento</h5>
+        <small class="text-muted">Preencha para criar um novo serviço</small>
+      </div>
+    </div>
+
+    <div class="table-card p-4">
+
+      {% if not clientes or not prestadoras %}
+      <div class="alert alert-warning">
+        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+        {% if not clientes %}Você precisa <a href="{{ url_for('novo_cliente') }}">cadastrar pelo menos um cliente</a> antes.{% endif %}
+        {% if not prestadoras %}Você precisa <a href="{{ url_for('nova_prestadora') }}">cadastrar pelo menos uma prestadora</a> antes.{% endif %}
+      </div>
+      {% else %}
+      <form method="post" action="{{ url_for('novo_agendamento') }}" novalidate>
+
+        <div class="mb-3">
+          <label for="id_cliente" class="form-label">Cliente <span class="text-danger">*</span></label>
+          <select id="id_cliente" name="id_cliente" class="form-select" required>
+            <option value="" disabled selected>Selecione um cliente...</option>
+            {% for c in clientes %}
+            <option value="{{ c.id }}">{{ c.nome }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="id_prestadora" class="form-label">Prestadora <span class="text-danger">*</span></label>
+          <select id="id_prestadora" name="id_prestadora" class="form-select" required>
+            <option value="" disabled selected>Selecione uma prestadora...</option>
+            {% for p in prestadoras %}
+            <option value="{{ p.id }}">{{ p.nome }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="servico_agendado" class="form-label">Serviço Solicitado <span class="text-danger">*</span></label>
+          <select id="servico_agendado" name="servico_agendado" class="form-select" required>
+            <option value="" disabled selected>Selecione o serviço...</option>
+            <option value="Diarista">&#x2728; Diarista</option>
+            <option value="Passadeira">&#x1F455; Passadeira</option>
+            <option value="Babá">&#x1F476; Babá</option>
+            <option value="Cozinheira">&#x1F373; Cozinheira</option>
+          </select>
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-sm-6">
+            <label for="data" class="form-label">Data <span class="text-danger">*</span></label>
+            <input type="date" id="data" name="data" class="form-control" required>
+          </div>
+          <div class="col-sm-6">
+            <label for="horario" class="form-label">Horário <span class="text-danger">*</span></label>
+            <input type="time" id="horario" name="horario" class="form-control" required>
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="status" class="form-label">Status Inicial</label>
+          <select id="status" name="status" class="form-select">
+            <option value="Pendente" selected>⏳ Pendente</option>
+            <option value="Confirmado">✅ Confirmado</option>
+            <option value="Concluído">🏁 Concluído</option>
+          </select>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-brand">
+            <i class="bi bi-calendar-check-fill me-2"></i>Criar Agendamento
+          </button>
+          <a href="{{ url_for('listar_agendamentos') }}" class="btn btn-light" style="border-radius:10px;">Cancelar</a>
+        </div>
+
+      </form>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Default date to today
+  document.getElementById('data').valueAsDate = new Date();
+</script>
+{% endblock %}

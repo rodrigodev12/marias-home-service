@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Editar Prestadora · Maria's Home Service{% endblock %}
+{% block page_title %}Editar Prestadora{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+
+    <div class="d-flex align-items-center gap-2 mb-4">
+      <a href="{{ url_for('listar_prestadoras') }}" class="btn btn-sm" style="background:#fce7f3;color:#ec4899;border-radius:8px;">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+      <div>
+        <h5 class="mb-0 fw-bold" style="color:#1e1b4b;">Editar Prestadora</h5>
+        <small class="text-muted">{{ prestadora.nome }}</small>
+      </div>
+    </div>
+
+    <div class="table-card p-4">
+      <form method="post" action="{{ url_for('editar_prestadora', id=prestadora.id) }}" novalidate>
+
+        <div class="mb-3">
+          <label for="nome" class="form-label">Nome Completo <span class="text-danger">*</span></label>
+          <input type="text" id="nome" name="nome" class="form-control" value="{{ prestadora.nome }}" required>
+        </div>
+
+        <div class="mb-3">
+          <label for="telefone" class="form-label">Telefone / WhatsApp</label>
+          <input type="tel" id="telefone" name="telefone" class="form-control" value="{{ prestadora.telefone or '' }}">
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label d-block">Especialidades</label>
+          <div class="d-flex flex-wrap gap-3">
+            {% for esp in especialidades_opcoes %}
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="especialidades" value="{{ esp }}"
+                     id="esp_{{ loop.index }}" {% if esp in especialidades_atuais %}checked{% endif %}>
+              <label class="form-check-label" for="esp_{{ loop.index }}">
+                {% if esp == 'Diarista' %}<i class="bi bi-stars me-1 text-warning"></i>
+                {% elif esp == 'Passadeira' %}<i class="bi bi-patch-check me-1" style="color:#7c3aed;"></i>
+                {% elif esp == 'Babá' %}<i class="bi bi-emoji-smile me-1" style="color:#ec4899;"></i>
+                {% elif esp == 'Cozinheira' %}<i class="bi bi-egg-fried me-1" style="color:#f97316;"></i>
+                {% endif %}
+                {{ esp }}
+              </label>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="mb-4">
+          <label for="disponibilidade" class="form-label">Disponibilidade</label>
+          <input type="text" id="disponibilidade" name="disponibilidade" class="form-control"
+                 value="{{ prestadora.disponibilidade or '' }}">
+        </div>
+
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-brand">
+            <i class="bi bi-check2-circle me-2"></i>Atualizar Prestadora
+          </button>
+          <a href="{{ url_for('listar_prestadoras') }}" class="btn btn-light" style="border-radius:10px;">Cancelar</a>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

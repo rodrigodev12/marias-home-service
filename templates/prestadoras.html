@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}Prestadoras · Maria's Home Service{% endblock %}
+{% block page_title %}Prestadoras{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h5 class="mb-0 fw-bold" style="color:#1e1b4b;">Lista de Prestadoras</h5>
+    <small class="text-muted">{{ prestadoras|length }} prestadora(s) cadastrada(s)</small>
+  </div>
+  <a href="{{ url_for('nova_prestadora') }}" class="btn btn-brand">
+    <i class="bi bi-person-video3 me-2"></i>Nova Prestadora
+  </a>
+</div>
+
+<div class="table-card">
+  <div class="table-responsive">
+    <table class="table mb-0">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nome</th>
+          <th>Telefone</th>
+          <th>Especialidades</th>
+          <th>Disponibilidade</th>
+          <th>Período</th>
+          <th class="text-center">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if prestadoras %}
+          {% for p in prestadoras %}
+          <tr>
+            <td class="text-muted">#{{ p.id }}</td>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#ec4899,#f97316);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.8rem;flex-shrink:0;">
+                  {{ p.nome[0].upper() }}
+                </div>
+                <span class="fw-500">{{ p.nome }}</span>
+              </div>
+            </td>
+            <td>{{ p.telefone or '—' }}</td>
+            <td>
+              {% if p.especialidades %}
+                {% for esp in p.especialidades.split(',') %}
+                  <span class="badge me-1" style="background:#fce7f3;color:#be185d;border-radius:6px;">{{ esp.strip() }}</span>
+                {% endfor %}
+              {% else %}—{% endif %}
+            </td>
+            <td>{{ p.disponibilidade or '—' }}</td>
+            <td>
+              {% if p.preferencia_horario %}
+                <span class="badge" style="background:#ede9fe;color:#5b21b6;border-radius:8px;font-size:.78rem;font-weight:600;">
+                  {% if 'Manh' in p.preferencia_horario %}🌅
+                  {% elif 'Tarde' in p.preferencia_horario %}☀️
+                  {% elif 'Noite' in p.preferencia_horario %}🌙
+                  {% else %}⏰{% endif %}
+                  {{ p.preferencia_horario }}
+                </span>
+              {% else %}—{% endif %}
+            </td>
+            <td class="text-center">
+              <a href="{{ url_for('editar_prestadora', id=p.id) }}" class="btn btn-sm" style="background:#ede9fe;color:#7c3aed;border-radius:8px;" title="Editar">
+                <i class="bi bi-pencil-fill"></i>
+              </a>
+              <!-- Botão que abre o modal -->
+              <button type="button" class="btn btn-sm" style="background:#fee2e2;color:#dc2626;border-radius:8px;" title="Excluir"
+                      data-bs-toggle="modal" data-bs-target="#modalExcluir"
+                      data-nome="{{ p.nome }}"
+                      data-action="{{ url_for('excluir_prestadora', id=p.id) }}">
+                <i class="bi bi-trash-fill"></i>
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="7" class="text-center text-muted py-5">
+              <i class="bi bi-person-badge fs-2 d-block mb-2"></i>
+              Nenhuma prestadora cadastrada ainda.
+              <a href="{{ url_for('nova_prestadora') }}" class="d-block mt-2">Cadastrar primeira prestadora</a>
+            </td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ── Modal de confirmação de exclusão ── -->
+<div class="modal fade" id="modalExcluir" tabindex="-1" aria-labelledby="modalExcluirLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius:16px;border:none;">
+      <div class="modal-header border-0 pb-0">
+        <div class="d-flex align-items-center gap-2">
+          <div style="width:40px;height:40px;background:#fee2e2;border-radius:12px;display:flex;align-items:center;justify-content:center;">
+            <i class="bi bi-trash-fill" style="color:#dc2626;font-size:1.1rem;"></i>
+          </div>
+          <h6 class="modal-title mb-0 fw-bold" id="modalExcluirLabel" style="color:#1e1b4b;">Confirmar Exclusão</h6>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body pt-3">
+        <p class="mb-0 text-muted" style="font-size:.9rem;">
+          Tem certeza que deseja excluir a prestadora <strong id="nomePrestadoraModal"></strong>?
+          <br><small class="text-danger">Esta ação não pode ser desfeita.</small>
+        </p>
+      </div>
+      <div class="modal-footer border-0 pt-0">
+        <button type="button" class="btn btn-light" style="border-radius:10px;" data-bs-dismiss="modal">Cancelar</button>
+        <form id="formExcluir" method="post" class="d-inline">
+          <button type="submit" class="btn" style="background:#dc2626;color:#fff;border-radius:10px;font-weight:600;">
+            <i class="bi bi-trash-fill me-1"></i>Excluir
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  document.getElementById('modalExcluir').addEventListener('show.bs.modal', function(event) {
+    const btn = event.relatedTarget;
+    document.getElementById('nomePrestadoraModal').textContent = btn.dataset.nome;
+    document.getElementById('formExcluir').action = btn.dataset.action;
+  });
+</script>
+{% endblock %}

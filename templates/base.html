@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Maria's Home Service{% endblock %}</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --brand-primary: #0c4a34;       /* Verde Escuro Principal */
+      --brand-secondary: #ff6b00;     /* Laranja de Destaque */
+      --brand-accent:  #ff6b00;        /* Laranja de Destaque */
+      --sidebar-bg:    #0c4a34;       /* Verde Escuro Principal */
+      --sidebar-text:  #d1fae5;       /* Mint color for contrast */
+      --sidebar-hover: #064e3b;       /* Darker green for hover */
+      --body-bg:       #f7f7f4;       /* Off-white background */
+    }
+
+    * { font-family: 'Inter', sans-serif; }
+
+    body { background: var(--body-bg); min-height: 100vh; }
+
+    /* ── Sidebar ── */
+    #sidebar {
+      width: 260px; min-height: 100vh;
+      background: var(--sidebar-bg);
+      position: fixed; top: 0; left: 0; z-index: 1000;
+      display: flex; flex-direction: column;
+      transition: width .3s;
+    }
+
+    #sidebar .brand {
+      padding: 1.5rem 1.25rem;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    #sidebar .nav-link {
+      color: var(--sidebar-text);
+      padding: .65rem 1.25rem;
+      border-radius: 8px;
+      margin: 2px 10px;
+      font-size: .88rem;
+      font-weight: 500;
+      display: flex; align-items: center; gap: .6rem;
+      transition: background-color .2s, color .2s;
+    }
+    #sidebar .nav-link:hover,
+    #sidebar .nav-link.active {
+      background: var(--brand-secondary); /* Laranja ativo/hover */
+      color: #fff;
+    }
+    #sidebar .nav-link i { font-size: 1.1rem; }
+
+    #sidebar .sidebar-section {
+      color: rgba(209,250,229,.4);
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      padding: 1.25rem 1.35rem .35rem;
+    }
+
+    /* ── Main content ── */
+    #main { margin-left: 260px; padding: 0; }
+
+    .topbar {
+      background: #fff;
+      border-bottom: 1px solid #e2ebd9;
+      padding: .85rem 1.75rem;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 900;
+      box-shadow: 0 1px 8px rgba(12,74,52,.04);
+    }
+    .topbar h6 { margin: 0; font-weight: 600; color: #0c4a34; font-size: 1rem; }
+    .topbar .badge-time { font-size: .78rem; color: #ff6b00; background: #fff3eb; padding: .3rem .7rem; border-radius: 20px; font-weight: 600; }
+
+    .page-body { padding: 1.75rem; }
+
+    /* ── Cards ── */
+    .stat-card {
+      border: none; border-radius: 16px;
+      background: #fff;
+      box-shadow: 0 2px 16px rgba(12,74,52,.05);
+      transition: transform .2s, box-shadow .2s;
+    }
+    .stat-card:hover { transform: translateY(-3px); box-shadow: 0 6px 24px rgba(12,74,52,.1); }
+    .stat-card .icon-box {
+      width: 52px; height: 52px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem;
+    }
+    .stat-card .stat-value { font-size: 2rem; font-weight: 700; color: #0c4a34; }
+    .stat-card .stat-label { font-size: .8rem; font-weight: 500; color: #6b7280; }
+
+    /* ── Table ── */
+    .table-card { background: #fff; border-radius: 16px; border: none; box-shadow: 0 2px 16px rgba(12,74,52,.05); overflow: hidden; }
+    .table thead th { background: #e6edea; color: #0c4a34; font-size: .78rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; border: none; }
+    .table tbody td { vertical-align: middle; border-color: #f1f5f3; font-size: .875rem; }
+
+    /* ── Status badges ── */
+    .badge-pendente  { background: #fff3eb; color: #ff6b00; }
+    .badge-confirmado { background: #d1fae5; color: #065f46; }
+    .badge-concluido  { background: #e0e7ff; color: #3730a3; }
+
+    /* ── Forms ── */
+    .form-label { font-weight: 600; font-size: .875rem; color: #0c4a34; }
+    .form-control, .form-select {
+      border-radius: 10px; border: 1.5px solid #e5e7eb;
+      padding: .55rem .9rem; font-size: .875rem;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--brand-primary);
+      box-shadow: 0 0 0 3px rgba(12,74,52,.12);
+    }
+    .btn-brand {
+      background: #ff6b00;
+      color: #fff; border: none; border-radius: 10px;
+      padding: .6rem 1.5rem; font-weight: 600; font-size: .875rem;
+      transition: background-color .2s, transform .15s;
+    }
+    .btn-brand:hover { background-color: #e05e00; color: #fff; transform: translateY(-1px); }
+
+    .form-check-input:checked { background-color: var(--brand-primary); border-color: var(--brand-primary); }
+
+    /* ── Alerts ── */
+    .alert { border-radius: 12px; border: none; font-size: .875rem; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      #sidebar { width: 0; overflow: hidden; }
+      #main { margin-left: 0; }
+    }
+  </style>
+  {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+  <!-- ===== Sidebar ===== -->
+  <nav id="sidebar">
+    <div class="brand text-center">
+      <img src="/static/logo03.png" alt="Logo Maria's Home Service" style="max-width: 140px; border-radius: 15px; border: 2px solid #ff6b00; box-shadow: 0 4px 8px rgba(0,0,0,0.2); margin: 15px auto; display: block;">
+    </div>
+
+    <div class="mt-2">
+      <div class="sidebar-section">Menu</div>
+      <a href="{{ url_for('dashboard') }}"          class="nav-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+        <i class="bi bi-grid-1x2-fill"></i> Dashboard
+      </a>
+
+      <div class="sidebar-section">Cadastros</div>
+      <a href="{{ url_for('listar_clientes') }}"    class="nav-link {% if 'cliente' in request.endpoint %}active{% endif %}">
+        <i class="bi bi-people-fill"></i> Clientes
+      </a>
+      <a href="{{ url_for('listar_prestadoras') }}" class="nav-link {% if 'prestadora' in request.endpoint %}active{% endif %}">
+        <i class="bi bi-person-badge-fill"></i> Prestadoras
+      </a>
+
+      <div class="sidebar-section">Operações</div>
+      <a href="{{ url_for('listar_agendamentos') }}" class="nav-link {% if 'agendamento' in request.endpoint %}active{% endif %}">
+        <i class="bi bi-calendar2-check-fill"></i> Agendamentos
+      </a>
+    </div>
+
+    <div class="mt-auto p-3" style="border-top:1px solid rgba(255,255,255,.08);">
+      <a href="{{ url_for('logout') }}"
+         class="nav-link d-flex align-items-center gap-2 mb-2"
+         style="color:#fca5a5; border-radius:8px; padding:.55rem 1rem; font-size:.85rem; font-weight:600; transition:background .2s;"
+         onmouseover="this.style.background='rgba(220,38,38,.18)'"
+         onmouseout="this.style.background='transparent'">
+        <i class="bi bi-box-arrow-right" style="font-size:1rem;"></i> Sair
+      </a>
+      <small style="color:rgba(196,181,253,.4);font-size:.7rem; padding-left:.25rem;">v1.0 · Maria's Home Service</small>
+    </div>
+  </nav>
+
+  <!-- ===== Main ===== -->
+  <div id="main">
+    <div class="topbar">
+      <h6>{% block page_title %}Dashboard{% endblock %}</h6>
+      <span class="badge-time"><i class="bi bi-clock me-1"></i>{{ now if now else '' }}</span>
+    </div>
+
+    <div class="page-body">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Inicializa todos os tooltips Bootstrap da página
+    document.addEventListener('DOMContentLoaded', function () {
+      const tooltipEls = document.querySelectorAll('[data-bs-toggle="tooltip"]');
+      tooltipEls.forEach(function (el) {
+        new bootstrap.Tooltip(el, { trigger: 'hover', delay: { show: 300, hide: 100 } });
+      });
+    });
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

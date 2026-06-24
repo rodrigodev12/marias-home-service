@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadastro Recebido · Maria's Home Service</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <style>
+    * { font-family: 'Inter', sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #052e16 0%, #0c4a34 50%, #14532d 100%);
+      display: flex; align-items: center; justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .success-card {
+      background: #fff;
+      border-radius: 28px;
+      padding: 3rem 2.5rem;
+      text-align: center;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 24px 64px rgba(0,0,0,.3);
+      animation: slideUp .5s ease;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .success-icon {
+      width: 88px; height: 88px;
+      background: #ff6b00;
+      border-radius: 50%;
+      display: inline-flex; align-items: center; justify-content: center;
+      font-size: 2.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 8px 24px rgba(255,107,0,.35);
+    }
+
+    h1 {
+      font-size: 1.6rem; font-weight: 800;
+      color: #0c4a34; margin-bottom: .75rem;
+    }
+
+    p {
+      color: #6b7280; font-size: .95rem; line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .highlight {
+      background: #f7fcf9;
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+      border-left: 4px solid #ff6b00;
+    }
+    .highlight p { margin: 0; color: #0c4a34; font-weight: 600; font-size: .875rem; }
+
+    .btn-back {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: #ff6b00;
+      color: #fff; text-decoration: none;
+      border-radius: 14px;
+      padding: .8rem 2rem;
+      font-weight: 700; font-size: .95rem;
+      transition: background-color .2s, transform .15s;
+      margin-top: .5rem;
+    }
+    .btn-back:hover { background-color: #e05e00; transform: translateY(-2px); color: #fff; }
+
+    .footer-text {
+      color: #9ca3af; font-size: .75rem; margin-top: 1.5rem; margin-bottom: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="success-card">
+
+    <div class="success-icon">🎉</div>
+
+    <h1>Cadastro Recebido!</h1>
+    <p>Obrigada pelo seu interesse em fazer parte da equipe da <strong>Maria's Home Service</strong>.</p>
+
+    <div class="highlight">
+      <p><i class="bi bi-whatsapp me-2" style="color:#25d366;"></i>Entraremos em contato pelo WhatsApp informado em breve para confirmar seu cadastro.</p>
+    </div>
+
+    <p style="font-size:.85rem;">Enquanto isso, fique à vontade para nos chamar diretamente se tiver alguma dúvida. 😊</p>
+
+    <a href="{{ url_for('cadastro_prestadora_publico') }}" class="btn-back">
+      <i class="bi bi-arrow-left"></i> Voltar ao Início
+    </a>
+
+    <p class="footer-text">Maria's Home Service · Conectando lares a profissionais de confiança</p>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login · Maria's Home Service</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <style>
+    * { font-family: 'Inter', sans-serif; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0c4a34 0%, #064e3b 50%, #022c22 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Decorative background circles */
+    body::before, body::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      opacity: .07;
+      background: #ff6b00;
+      pointer-events: none;
+    }
+    body::before {
+      width: 500px; height: 500px;
+      top: -150px; right: -100px;
+    }
+    body::after {
+      width: 350px; height: 350px;
+      bottom: -100px; left: -80px;
+    }
+
+    .login-card {
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, .35);
+      padding: 2.75rem 2.5rem 2.25rem;
+      width: 100%;
+      max-width: 420px;
+      position: relative;
+      z-index: 1;
+      animation: slideUp .45s cubic-bezier(.16,1,.3,1) both;
+    }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(28px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo-wrap {
+      text-align: center;
+      margin-bottom: 1.6rem;
+    }
+    .logo-wrap img {
+      height: 90px;
+      width: auto;
+      border-radius: 14px;
+      border: 2px solid #ff6b00;
+      box-shadow: 0 6px 18px rgba(255, 107, 0, .25);
+    }
+
+    .login-title {
+      text-align: center;
+      margin-bottom: 1.75rem;
+    }
+    .login-title h4 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #0c4a34;
+      margin-bottom: .2rem;
+    }
+    .login-title p {
+      font-size: .82rem;
+      color: #6b7280;
+      margin: 0;
+    }
+
+    .divider {
+      border: none;
+      height: 1px;
+      background: linear-gradient(to right, transparent, #e5e7eb, transparent);
+      margin: 0 0 1.6rem;
+    }
+
+    .form-label {
+      font-size: .82rem;
+      font-weight: 600;
+      color: #0c4a34;
+      margin-bottom: .35rem;
+    }
+
+    .input-group-text {
+      background: #f0f7f4;
+      border: 1.5px solid #d1d5db;
+      border-right: none;
+      color: #6b7280;
+      border-radius: 10px 0 0 10px;
+    }
+    .form-control {
+      border: 1.5px solid #d1d5db;
+      border-left: none;
+      border-radius: 0 10px 10px 0;
+      padding: .6rem .9rem;
+      font-size: .875rem;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .input-group:focus-within .input-group-text,
+    .form-control:focus {
+      border-color: #0c4a34;
+      box-shadow: none;
+      outline: none;
+    }
+    .input-group:focus-within .input-group-text {
+      background: #e6f0eb;
+    }
+
+    .btn-login {
+      background: #ff6b00;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: .7rem;
+      font-weight: 700;
+      font-size: .95rem;
+      width: 100%;
+      transition: background .2s, transform .15s, box-shadow .2s;
+      box-shadow: 0 4px 14px rgba(255, 107, 0, .35);
+      letter-spacing: .02em;
+    }
+    .btn-login:hover {
+      background: #e05e00;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(255, 107, 0, .4);
+    }
+    .btn-login:active {
+      transform: translateY(0);
+    }
+
+    .alert {
+      border-radius: 10px;
+      font-size: .84rem;
+      border: none;
+    }
+
+    .footer-note {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: .75rem;
+      color: #9ca3af;
+    }
+    .footer-note a {
+      color: #ff6b00;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .footer-note a:hover { text-decoration: underline; }
+
+    .public-links {
+      margin-top: 1.1rem;
+      text-align: center;
+    }
+    .public-links a {
+      display: inline-block;
+      font-size: .78rem;
+      color: #6b7280;
+      text-decoration: none;
+      margin: 0 .4rem;
+      transition: color .2s;
+    }
+    .public-links a:hover { color: #0c4a34; }
+  </style>
+</head>
+<body>
+
+  <div class="login-card">
+
+    <!-- Logo -->
+    <div class="logo-wrap">
+      <img src="/static/logo03.png" alt="Maria's Home Service">
+    </div>
+
+    <!-- Título -->
+    <div class="login-title">
+      <h4>Acesso Administrativo</h4>
+      <p>Entre com suas credenciais para acessar o painel</p>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Mensagens Flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }} d-flex align-items-center gap-2 mb-3" role="alert">
+            <i class="bi {% if category == 'danger' %}bi-exclamation-triangle-fill text-danger{% elif category == 'success' %}bi-check-circle-fill text-success{% elif category == 'warning' %}bi-shield-exclamation text-warning{% else %}bi-info-circle-fill text-info{% endif %}"></i>
+            <span>{{ message }}</span>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Formulário -->
+    <form method="POST" action="{{ url_for('login') }}" autocomplete="off">
+
+      <div class="mb-3">
+        <label for="usuario" class="form-label">Usuário</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-person-fill"></i></span>
+          <input type="text" id="usuario" name="usuario"
+                 class="form-control" placeholder="Digite o usuário"
+                 required autofocus autocomplete="username">
+        </div>
+      </div>
+
+      <div class="mb-4">
+        <label for="senha" class="form-label">Senha</label>
+        <div class="input-group">
+          <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+          <input type="password" id="senha" name="senha"
+                 class="form-control" placeholder="Digite a senha"
+                 required autocomplete="current-password">
+        </div>
+      </div>
+
+      <button type="submit" class="btn-login">
+        <i class="bi bi-box-arrow-in-right me-2"></i>Entrar no Painel
+      </button>
+
+    </form>
+
+    <!-- Links públicos -->
+    <div class="public-links">
+      <a href="{{ url_for('agendamento_cliente_publico') }}">
+        <i class="bi bi-calendar-plus me-1"></i>Solicitar Agendamento
+      </a>
+      ·
+      <a href="{{ url_for('cadastro_prestadora_publico') }}">
+        <i class="bi bi-person-badge me-1"></i>Cadastrar Prestadora
+      </a>
+    </div>
+
+    <div class="footer-note">
+      v1.0 · Maria's Home Service
+    </div>
+
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
