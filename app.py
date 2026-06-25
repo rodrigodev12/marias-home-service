@@ -158,12 +158,21 @@ def init_db():
                 horario          TEXT    NOT NULL,
                 status           TEXT    DEFAULT 'Pendente',
                 servico_agendado TEXT,
-                observacoes      TEXT
+                observacoes      TEXT,
+                valor_cliente    NUMERIC(10,2) DEFAULT 0,
+                valor_prestadora NUMERIC(10,2) DEFAULT 0,
+                lucro_empresa    NUMERIC(10,2) DEFAULT 0
             )
         ''')
 
         # ── Migrações seguras: adiciona colunas que possam estar faltando ──
-        for col, ctype in [('servico_agendado', 'TEXT'), ('observacoes', 'TEXT')]:
+        for col, ctype in [
+            ('servico_agendado', 'TEXT'),
+            ('observacoes', 'TEXT'),
+            ('valor_cliente',    'NUMERIC(10,2) DEFAULT 0'),
+            ('valor_prestadora', 'NUMERIC(10,2) DEFAULT 0'),
+            ('lucro_empresa',    'NUMERIC(10,2) DEFAULT 0'),
+        ]:
             if not _col_exists(db, 'agendamentos', col):
                 db.execute(f'ALTER TABLE agendamentos ADD COLUMN {col} {ctype}')
 
@@ -244,6 +253,19 @@ def dashboard():
     total_prestadoras  = db.execute('SELECT COUNT(*) AS total FROM prestadoras').fetchone()['total']
     total_agendamentos = db.execute('SELECT COUNT(*) AS total FROM agendamentos').fetchone()['total']
 
+    # ── Resumo financeiro ──
+    fin = db.execute('''
+        SELECT
+            COALESCE(SUM(valor_cliente),    0) AS faturamento_total,
+            COALESCE(SUM(valor_prestadora), 0) AS total_repasse,
+            COALESCE(SUM(lucro_empresa),    0) AS lucro_liquido
+        FROM agendamentos
+        WHERE status IN (%s, %s)
+    ''', ('Confirmado', 'Concluído')).fetchone()
+    faturamento_total = float(fin['faturamento_total'] or 0)
+    total_repasse     = float(fin['total_repasse']     or 0)
+    lucro_liquido     = float(fin['lucro_liquido']     or 0)
+
     agendamentos_hoje = db.execute('''
         SELECT a.id, c.nome AS cliente,
                COALESCE(p.nome, '— A definir') AS prestadora,
@@ -276,6 +298,9 @@ def dashboard():
                            total_clientes=total_clientes,
                            total_prestadoras=total_prestadoras,
                            total_agendamentos=total_agendamentos,
+                           faturamento_total=faturamento_total,
+                           total_repasse=total_repasse,
+                           lucro_liquido=lucro_liquido,
                            agendamentos_hoje=agendamentos_hoje,
                            proximos_agendamentos=proximos_agendamentos,
                            prestadoras=prestadoras,
@@ -529,22 +554,74 @@ def excluir_agendamento(id):
 @app.route('/atribuir_prestadora', methods=['POST'])
 @login_required
 def atribuir_prestadora():
-    id_agendamento = request.form.get('id_agendamento')
-    id_prestadora  = request.form.get('id_prestadora')
+    id_agendamento   = request.form.get('id_agendamento')
+    id_prestadora    = request.form.get('id_prestadora')
+    valor_cliente_s  = request.form.get('valor_cliente', '0').replace(',', '.').strip()
+    valor_prest_s    = request.form.get('valor_prestadora', '0').replace(',', '.').strip()
 
     if not id_agendamento or not id_prestadora:
         flash('Erro ao atribuir prestadora.', 'danger')
         return redirect(url_for('dashboard'))
 
+    try:
+        valor_cliente_f  = float(valor_cliente_s)  if valor_cliente_s  else 0.0
+        valor_prest_f    = float(valor_prest_s)     if valor_prest_s    else 0.0
+    except ValueError:
+        valor_cliente_f = 0.0
+        valor_prest_f   = 0.0
+
+    lucro_f = valor_cliente_f - valor_prest_f
+
     db = get_db()
     db.execute('''
         UPDATE agendamentos
-        SET id_prestadora = ?, status = 'Confirmado'
+        SET id_prestadora = ?, status = 'Confirmado',
+            valor_cliente = ?, valor_prestadora = ?, lucro_empresa = ?
         WHERE id = ?
-    ''', (id_prestadora, id_agendamento))
+    ''', (id_prestadora, valor_cliente_f, valor_prest_f, lucro_f, id_agendamento))
     db.commit()
     flash('Prestadora atribuída com sucesso! O status foi alterado para Confirmado.', 'success')
     return redirect(url_for('dashboard'))
+
+
+# ---------------------------------------------------------------------------
+# FLUXO DE CAIXA / FINANCEIRO
+# ---------------------------------------------------------------------------
+
+@app.route('/financeiro')
+@login_required
+def financeiro():
+    db = get_db()
+
+    # Totais gerais (somente Confirmado / Concluído)
+    totais = db.execute('''
+        SELECT
+            COALESCE(SUM(valor_cliente),    0) AS faturamento_total,
+            COALESCE(SUM(valor_prestadora), 0) AS total_repasse,
+            COALESCE(SUM(lucro_empresa),    0) AS lucro_liquido
+        FROM agendamentos
+        WHERE status IN (%s, %s)
+    ''', ('Confirmado', 'Concluído')).fetchone()
+
+    # Histórico completo de agendamentos com valores financeiros
+    historico = db.execute('''
+        SELECT a.id, a.data, a.status,
+               c.nome AS cliente,
+               COALESCE(p.nome, '— A definir') AS prestadora,
+               a.servico_agendado,
+               COALESCE(a.valor_cliente,    0) AS valor_cliente,
+               COALESCE(a.valor_prestadora, 0) AS valor_prestadora,
+               COALESCE(a.lucro_empresa,    0) AS lucro_empresa
+        FROM   agendamentos a
+        JOIN   clientes     c ON c.id = a.id_cliente
+        LEFT JOIN prestadoras p ON p.id = a.id_prestadora
+        ORDER  BY SUBSTR(a.data, 7, 4) || '-' || SUBSTR(a.data, 4, 2) || '-' || SUBSTR(a.data, 1, 2) DESC,
+                  a.id DESC
+    ''').fetchall()
+
+    return render_template('financeiro.html',
+                           totais=totais,
+                           historico=historico)
 
 
 # ---------------------------------------------------------------------------

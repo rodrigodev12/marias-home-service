@@ -204,6 +204,9 @@
       <a href="{{ url_for('listar_agendamentos') }}" class="nav-link {% if 'agendamento' in request.endpoint %}active{% endif %}">
         <i class="bi bi-calendar2-check-fill"></i> Agendamentos
       </a>
+      <a href="{{ url_for('financeiro') }}" class="nav-link {% if request.endpoint == 'financeiro' %}active{% endif %}">
+        <i class="bi bi-graph-up-arrow"></i> Financeiro
+      </a>
     </div>
 
     <div class="mt-auto p-3" style="border-top:1px solid rgba(255,255,255,.08);">
@@ -258,6 +261,10 @@
     <a href="{{ url_for('listar_agendamentos') }}" class="mobile-nav-item {% if 'agendamento' in request.endpoint %}active{% endif %}">
       <i class="bi bi-calendar2-check-fill"></i>
       <span>Agenda</span>
+    </a>
+    <a href="{{ url_for('financeiro') }}" class="mobile-nav-item {% if request.endpoint == 'financeiro' %}active{% endif %}">
+      <i class="bi bi-graph-up-arrow"></i>
+      <span>Financeiro</span>
     </a>
     <a href="{{ url_for('logout') }}" class="mobile-nav-item nav-logout">
       <i class="bi bi-box-arrow-right"></i>

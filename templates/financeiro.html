@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+{% block title %}Financeiro · Maria's Home Service{% endblock %}
+{% block page_title %}Fluxo de Caixa{% endblock %}
+
+{% block extra_head %}
+<style>
+  .fin-card {
+    border: none;
+    border-radius: 16px;
+    background: #fff;
+    box-shadow: 0 2px 16px rgba(12,74,52,.06);
+    padding: 1.25rem 1.5rem;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .fin-card:hover { transform: translateY(-3px); box-shadow: 0 6px 24px rgba(12,74,52,.1); }
+  .fin-icon {
+    width: 48px; height: 48px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; flex-shrink: 0;
+  }
+  .fin-val  { font-size: 1.75rem; font-weight: 700; line-height: 1.1; }
+  .fin-lbl  { font-size: .78rem; font-weight: 600; color: #6b7280; margin-top: 3px; }
+  .fin-sub  { font-size: .7rem; color: #9ca3af; margin-top: 2px; }
+
+  .lucro-pos { color: #065f46; font-weight: 700; }
+  .lucro-neg { color: #b91c1c; font-weight: 700; }
+  .lucro-zero { color: #9ca3af; }
+
+  .search-bar {
+    max-width: 320px;
+    border-radius: 10px;
+    border: 1.5px solid #e5e7eb;
+    padding: .5rem .9rem;
+    font-size: .875rem;
+    transition: border-color .2s, box-shadow .2s;
+  }
+  .search-bar:focus {
+    outline: none;
+    border-color: #0c4a34;
+    box-shadow: 0 0 0 3px rgba(12,74,52,.1);
+  }
+
+  @media (max-width: 767px) {
+    .fin-val { font-size: 1.25rem; }
+    .fin-card { padding: 1rem; }
+    .table { font-size: .82rem; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── Cabeçalho ── -->
+<div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+  <div>
+    <h5 class="mb-0 fw-bold" style="color:#0c4a34;">
+      <i class="bi bi-graph-up-arrow me-2" style="color:#ff6b00;"></i>Controle Financeiro
+    </h5>
+    <small class="text-muted">Resumo de faturamento, repasses e lucro da empresa</small>
+  </div>
+  <a href="{{ url_for('dashboard') }}" class="btn btn-light btn-sm" style="border-radius:10px; font-size:.82rem;">
+    <i class="bi bi-arrow-left me-1"></i>Voltar ao Dashboard
+  </a>
+</div>
+
+<!-- ── Cards de resumo ── -->
+<div class="row g-3 mb-4">
+
+  <div class="col-12 col-md-4">
+    <div class="fin-card" style="border-left:4px solid #ff6b00;">
+      <div class="d-flex align-items-center gap-3">
+        <div class="fin-icon" style="background:#fff3eb;">
+          <i class="bi bi-cash-stack" style="color:#ff6b00;"></i>
+        </div>
+        <div>
+          <div class="fin-val" style="color:#ff6b00;">
+            R$ {{ '%.2f'|format(totais.faturamento_total | float) | replace('.', ',') }}
+          </div>
+          <div class="fin-lbl">Faturamento Total</div>
+          <div class="fin-sub">Confirmados + Concluídos</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-4">
+    <div class="fin-card" style="border-left:4px solid #7c3aed;">
+      <div class="d-flex align-items-center gap-3">
+        <div class="fin-icon" style="background:#ede9fe;">
+          <i class="bi bi-arrow-up-right-circle-fill" style="color:#7c3aed;"></i>
+        </div>
+        <div>
+          <div class="fin-val" style="color:#7c3aed;">
+            R$ {{ '%.2f'|format(totais.total_repasse | float) | replace('.', ',') }}
+          </div>
+          <div class="fin-lbl">Total a Repassar</div>
+          <div class="fin-sub">Pagamentos às prestadoras</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-md-4">
+    <div class="fin-card" style="border-left:4px solid #0c4a34; background:linear-gradient(135deg,#f0fdf4,#fff);">
+      <div class="d-flex align-items-center gap-3">
+        <div class="fin-icon" style="background:#d1fae5;">
+          <i class="bi bi-graph-up-arrow" style="color:#0c4a34;"></i>
+        </div>
+        <div>
+          <div class="fin-val" style="color:#0c4a34;">
+            R$ {{ '%.2f'|format(totais.lucro_liquido | float) | replace('.', ',') }}
+          </div>
+          <div class="fin-lbl" style="color:#0c4a34; font-weight:700;">Lucro Líquido</div>
+          <div class="fin-sub">Faturamento − Repasses</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── Tabela de histórico ── -->
+<div class="table-card">
+
+  <div class="d-flex align-items-center justify-content-between p-4 pb-3 flex-wrap gap-2">
+    <h6 class="mb-0 fw-bold" style="color:#0c4a34;">
+      <i class="bi bi-list-ul me-2" style="color:#ff6b00;"></i>Histórico de Transações
+      <span class="badge rounded-pill ms-2" style="background:#e6edea;color:#0c4a34;font-size:.75rem;">{{ historico|length }}</span>
+    </h6>
+    <input type="text" id="searchInput" class="search-bar" placeholder="🔍  Buscar cliente, prestadora…">
+  </div>
+
+  <!-- Tabela desktop -->
+  <div class="d-none d-md-block table-responsive">
+    <table class="table mb-0" id="finTable">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Data</th>
+          <th>Cliente</th>
+          <th>Prestadora</th>
+          <th>Serviço</th>
+          <th>Status</th>
+          <th class="text-end">Valor Cliente</th>
+          <th class="text-end">Repasse</th>
+          <th class="text-end">Lucro</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if historico %}
+          {% for a in historico %}
+          <tr class="fin-row">
+            <td class="text-muted">#{{ a.id }}</td>
+            <td>{{ a.data }}</td>
+            <td><i class="bi bi-person-circle me-1 text-muted"></i>{{ a.cliente }}</td>
+            <td><i class="bi bi-person-badge me-1 text-muted"></i>{{ a.prestadora }}</td>
+            <td>
+              <span class="badge rounded-pill" style="background:#e6edea;color:#0c4a34;font-size:.76rem;">
+                {{ a.servico_agendado or '—' }}
+              </span>
+            </td>
+            <td>
+              <span class="badge rounded-pill
+                {% if a.status == 'Pendente' %}badge-pendente
+                {% elif a.status == 'Confirmado' %}badge-confirmado
+                {% else %}badge-concluido{% endif %}">
+                {{ a.status }}
+              </span>
+            </td>
+            <td class="text-end fw-600" style="color:#ff6b00;">
+              {% if a.valor_cliente %}
+                R$ {{ '%.2f'|format(a.valor_cliente | float) | replace('.', ',') }}
+              {% else %}
+                <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+            <td class="text-end" style="color:#7c3aed;">
+              {% if a.valor_prestadora %}
+                R$ {{ '%.2f'|format(a.valor_prestadora | float) | replace('.', ',') }}
+              {% else %}
+                <span class="text-muted">—</span>
+              {% endif %}
+            </td>
+            <td class="text-end">
+              {% set lucro = a.lucro_empresa | float %}
+              {% if lucro > 0 %}
+                <span class="lucro-pos">R$ {{ '%.2f'|format(lucro) | replace('.', ',') }}</span>
+              {% elif lucro < 0 %}
+                <span class="lucro-neg">R$ {{ '%.2f'|format(lucro) | replace('.', ',') }}</span>
+              {% else %}
+                <span class="lucro-zero">—</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="9" class="text-center text-muted py-5">
+              <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+              Nenhuma transação registrada ainda.
+            </td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Cards mobile -->
+  <div class="d-md-none px-3 pb-3 pt-1">
+    {% if historico %}
+      {% for a in historico %}
+      <div class="fin-row" style="background:#f7f7f4; border-radius:12px; padding:.85rem 1rem; margin-bottom:.6rem; border-left:3px solid
+        {% if a.status == 'Pendente' %}#ff6b00{% elif a.status == 'Confirmado' %}#059669{% else %}#4f46e5{% endif %};">
+        <div class="d-flex justify-content-between align-items-start mb-1">
+          <div>
+            <strong style="font-size:.88rem; color:#0c4a34;">{{ a.cliente }}</strong>
+            <div class="text-muted" style="font-size:.75rem;">
+              <i class="bi bi-calendar3 me-1"></i>{{ a.data }}
+              &nbsp;·&nbsp;<i class="bi bi-person-badge me-1"></i>{{ a.prestadora }}
+            </div>
+          </div>
+          <span class="badge rounded-pill
+            {% if a.status == 'Pendente' %}badge-pendente
+            {% elif a.status == 'Confirmado' %}badge-confirmado
+            {% else %}badge-concluido{% endif %}" style="font-size:.7rem;">
+            {{ a.status }}
+          </span>
+        </div>
+        <div class="d-flex gap-3 mt-2 flex-wrap" style="font-size:.8rem;">
+          <span style="color:#ff6b00; font-weight:600;">
+            <i class="bi bi-cash me-1"></i>
+            {% if a.valor_cliente %}R$ {{ '%.2f'|format(a.valor_cliente | float) | replace('.', ',') }}{% else %}—{% endif %}
+          </span>
+          <span style="color:#7c3aed;">
+            <i class="bi bi-arrow-up-right-circle me-1"></i>
+            {% if a.valor_prestadora %}R$ {{ '%.2f'|format(a.valor_prestadora | float) | replace('.', ',') }}{% else %}—{% endif %}
+          </span>
+          {% set lucro = a.lucro_empresa | float %}
+          <span class="{% if lucro > 0 %}lucro-pos{% elif lucro < 0 %}lucro-neg{% else %}lucro-zero{% endif %}">
+            <i class="bi bi-graph-up-arrow me-1"></i>
+            {% if lucro != 0 %}R$ {{ '%.2f'|format(lucro) | replace('.', ',') }}{% else %}—{% endif %}
+          </span>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="text-center text-muted py-5">
+        <i class="bi bi-inbox fs-2 d-block mb-2"></i>Nenhuma transação registrada.
+      </div>
+    {% endif %}
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  // Busca em tempo real na tabela / cards
+  const searchInput = document.getElementById('searchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', function () {
+      const q = this.value.toLowerCase();
+      document.querySelectorAll('.fin-row').forEach(function (row) {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(q) ? '' : 'none';
+      });
+    });
+  }
+</script>
+{% endblock %}
