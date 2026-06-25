@@ -135,10 +135,45 @@
     /* ── Alerts ── */
     .alert { border-radius: 12px; border: none; font-size: .875rem; }
 
+    /* ── Mobile Bottom Nav ── */
+    .mobile-bottom-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: #fff;
+      border-top: 1px solid #e2ebd9;
+      display: none;
+      z-index: 1050;
+      box-shadow: 0 -2px 12px rgba(12,74,52,.1);
+      padding-bottom: env(safe-area-inset-bottom, 0);
+    }
+    .mobile-nav-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: .55rem .25rem;
+      text-decoration: none;
+      color: #9ca3af;
+      font-size: .62rem;
+      font-weight: 600;
+      transition: color .2s, transform .15s;
+      gap: 2px;
+    }
+    .mobile-nav-item i { font-size: 1.25rem; }
+    .mobile-nav-item.active { color: #ff6b00; }
+    .mobile-nav-item.active i { transform: translateY(-2px); }
+    .mobile-nav-item:hover { color: #0c4a34; }
+    .mobile-nav-item.nav-logout { color: #ef4444; }
+
     /* ── Responsive ── */
     @media (max-width: 768px) {
       #sidebar { width: 0; overflow: hidden; }
       #main { margin-left: 0; }
+      .page-body { padding: 1rem; padding-bottom: 5.5rem; }
+      .topbar { padding: .75rem 1rem; }
+      .topbar h6 { font-size: .9rem; }
+      .mobile-bottom-nav { display: flex; }
     }
   </style>
   {% block extra_head %}{% endblock %}
@@ -205,6 +240,30 @@
       {% block content %}{% endblock %}
     </div>
   </div>
+
+  <!-- ===== Mobile Bottom Nav ===== -->
+  <nav class="mobile-bottom-nav">
+    <a href="{{ url_for('dashboard') }}" class="mobile-nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
+      <i class="bi bi-grid-1x2-fill"></i>
+      <span>Início</span>
+    </a>
+    <a href="{{ url_for('listar_clientes') }}" class="mobile-nav-item {% if 'cliente' in request.endpoint %}active{% endif %}">
+      <i class="bi bi-people-fill"></i>
+      <span>Clientes</span>
+    </a>
+    <a href="{{ url_for('listar_prestadoras') }}" class="mobile-nav-item {% if 'prestadora' in request.endpoint %}active{% endif %}">
+      <i class="bi bi-person-badge-fill"></i>
+      <span>Prestadoras</span>
+    </a>
+    <a href="{{ url_for('listar_agendamentos') }}" class="mobile-nav-item {% if 'agendamento' in request.endpoint %}active{% endif %}">
+      <i class="bi bi-calendar2-check-fill"></i>
+      <span>Agenda</span>
+    </a>
+    <a href="{{ url_for('logout') }}" class="mobile-nav-item nav-logout">
+      <i class="bi bi-box-arrow-right"></i>
+      <span>Sair</span>
+    </a>
+  </nav>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>

@@ -2,11 +2,46 @@
 {% block title %}Dashboard · Maria's Home Service{% endblock %}
 {% block page_title %}Dashboard{% endblock %}
 
+{% block extra_head %}
+<style>
+  /* ── Mobile dashboard tweaks ── */
+  @media (max-width: 767px) {
+    .stat-card { padding: .85rem !important; }
+    .stat-card .stat-value { font-size: 1.65rem; }
+    .stat-card .icon-box { width: 44px; height: 44px; font-size: 1.15rem; }
+
+    /* Quick action buttons: 2-column grid on mobile */
+    .quick-actions {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr;
+      gap: .5rem;
+    }
+    .quick-actions .btn-brand:last-child { grid-column: 1 / -1; }
+    .quick-actions .btn-brand { justify-content: center; font-size: .82rem; padding: .6rem .5rem; }
+
+    /* Section header: wrap date below title on mobile */
+    .section-header { flex-direction: column; align-items: flex-start !important; gap: .25rem; }
+
+    /* Mobile agenda cards */
+    .mobile-agenda-card {
+      background: #f7f7f4;
+      border-radius: 12px;
+      padding: .85rem 1rem;
+      margin-bottom: .6rem;
+      border-left: 3px solid #e2ebd9;
+    }
+    .mobile-agenda-card.card-pendente  { border-left-color: #ff6b00; }
+    .mobile-agenda-card.card-confirmado { border-left-color: #059669; }
+    .mobile-agenda-card.card-concluido  { border-left-color: #4f46e5; }
+  }
+</style>
+{% endblock %}
+
 {% block content %}
 <!-- ── Stat cards ── -->
-<div class="row g-4 mb-4">
+<div class="row g-3 mb-4">
 
-  <div class="col-sm-6 col-xl-4">
+  <div class="col-6 col-xl-4">
     <div class="card stat-card p-4 h-100">
       <div class="d-flex align-items-center gap-3">
         <div class="icon-box" style="background:#ede9fe;">
@@ -21,7 +56,7 @@
     </div>
   </div>
 
-  <div class="col-sm-6 col-xl-4">
+  <div class="col-6 col-xl-4">
     <div class="card stat-card p-4 h-100">
       <div class="d-flex align-items-center gap-3">
         <div class="icon-box" style="background:#fce7f3;">
@@ -36,7 +71,7 @@
     </div>
   </div>
 
-  <div class="col-sm-6 col-xl-4">
+  <div class="col-12 col-sm-6 col-xl-4">
     <div class="card stat-card p-4 h-100">
       <div class="d-flex align-items-center gap-3">
         <div class="icon-box" style="background:#d1fae5;">
@@ -54,7 +89,7 @@
 </div>
 
 <!-- ── Quick actions ── -->
-<div class="d-flex gap-2 flex-wrap mb-4">
+<div class="d-flex gap-2 flex-wrap mb-4 quick-actions">
   <a href="{{ url_for('novo_cliente') }}"      class="btn btn-brand"><i class="bi bi-person-plus-fill me-2"></i>Novo Cliente</a>
   <a href="{{ url_for('nova_prestadora') }}"   class="btn btn-brand"><i class="bi bi-person-video3 me-2"></i>Nova Prestadora</a>
   <a href="{{ url_for('novo_agendamento') }}"  class="btn btn-brand"><i class="bi bi-calendar-plus-fill me-2"></i>Novo Agendamento</a>
@@ -62,14 +97,63 @@
 
 <!-- ── Agendamentos de hoje ── -->
 <div class="table-card mb-4">
-  <div class="d-flex align-items-center justify-content-between p-4 pb-2">
+  <div class="d-flex align-items-center justify-content-between p-4 pb-2 section-header">
     <h6 class="mb-0 fw-700" style="color:#0c4a34;font-weight:700;">
       <i class="bi bi-sun-fill me-2" style="color:#f59e0b;"></i>Agendamentos de Hoje
       <span class="badge rounded-pill ms-2" style="background:#e6edea;color:#0c4a34;font-size:.75rem;">{{ agendamentos_hoje|length }}</span>
     </h6>
     <small class="text-muted">{{ hoje }}</small>
   </div>
-  <div class="table-responsive">
+
+  <!-- Mobile cards (visíveis apenas no mobile) -->
+  <div class="d-md-none px-3 pb-3 pt-2">
+    {% if agendamentos_hoje %}
+      {% for a in agendamentos_hoje %}
+      <div class="mobile-agenda-card
+        {% if a.status == 'Pendente' %}card-pendente
+        {% elif a.status == 'Confirmado' %}card-confirmado
+        {% else %}card-concluido{% endif %}">
+        <div class="d-flex justify-content-between align-items-start mb-1">
+          <strong style="font-size:.9rem; color:#0c4a34;">{{ a.cliente }}</strong>
+          <span class="badge rounded-pill
+            {% if a.status == 'Pendente' %}badge-pendente
+            {% elif a.status == 'Confirmado' %}badge-confirmado
+            {% else %}badge-concluido{% endif %}" style="font-size:.72rem;">
+            {{ a.status }}
+          </span>
+        </div>
+        <div class="text-muted" style="font-size:.8rem;">
+          <i class="bi bi-person-badge me-1"></i>{{ a.prestadora or 'Sem prestadora' }}
+          {% if not a.id_prestadora %}
+          <button type="button" class="btn btn-sm py-0 px-2 ms-1 btn-brand"
+                  style="font-size:.68rem; border-radius:6px;"
+                  data-bs-toggle="modal" data-bs-target="#modalAtribuir"
+                  data-id="{{ a.id }}"
+                  data-cliente="{{ a.cliente }}"
+                  data-servico="{{ a.servico_agendado }}">
+            Atribuir
+          </button>
+          {% endif %}
+        </div>
+        <div class="d-flex align-items-center gap-2 mt-2 flex-wrap">
+          <span class="badge rounded-pill" style="background:#e6edea;color:#0c4a34;font-size:.75rem;">
+            {{ a.servico_agendado or '—' }}
+          </span>
+          <span class="text-muted" style="font-size:.8rem;">
+            <i class="bi bi-clock me-1"></i>{{ a.horario }}
+          </span>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="text-center text-muted py-4">
+        <i class="bi bi-calendar-x fs-3 d-block mb-2"></i>Nenhum agendamento para hoje.
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Tabela desktop (oculta no mobile) -->
+  <div class="d-none d-md-block table-responsive">
     <table class="table mb-0">
       <thead>
         <tr>
@@ -127,7 +211,64 @@
       <i class="bi bi-calendar2-week-fill me-2" style="color:#ff6b00;"></i>Próximos Agendamentos
     </h6>
   </div>
-  <div class="table-responsive">
+
+  <!-- Mobile cards -->
+  <div class="d-md-none px-3 pb-3 pt-2">
+    {% if proximos_agendamentos %}
+      {% for a in proximos_agendamentos %}
+      <div class="mobile-agenda-card
+        {% if a.status == 'Pendente' %}card-pendente
+        {% elif a.status == 'Confirmado' %}card-confirmado
+        {% else %}card-concluido{% endif %}">
+        <div class="d-flex justify-content-between align-items-start mb-1">
+          <div>
+            <strong style="font-size:.9rem; color:#0c4a34;">{{ a.cliente }}</strong>
+            <div class="text-muted" style="font-size:.75rem;">
+              <i class="bi bi-calendar3 me-1"></i>{{ a.data }}
+              <i class="bi bi-clock ms-2 me-1"></i>{{ a.horario }}
+            </div>
+          </div>
+          <span class="badge rounded-pill
+            {% if a.status == 'Pendente' %}badge-pendente
+            {% elif a.status == 'Confirmado' %}badge-confirmado
+            {% else %}badge-concluido{% endif %}" style="font-size:.72rem;">
+            {{ a.status }}
+          </span>
+        </div>
+        <div class="text-muted" style="font-size:.8rem;">
+          <i class="bi bi-person-badge me-1"></i>{{ a.prestadora or 'Sem prestadora' }}
+          {% if not a.id_prestadora %}
+          <button type="button" class="btn btn-sm py-0 px-2 ms-1 btn-brand"
+                  style="font-size:.68rem; border-radius:6px;"
+                  data-bs-toggle="modal" data-bs-target="#modalAtribuir"
+                  data-id="{{ a.id }}"
+                  data-cliente="{{ a.cliente }}"
+                  data-servico="{{ a.servico_agendado }}">
+            Atribuir
+          </button>
+          {% endif %}
+        </div>
+        <div class="d-flex align-items-center gap-2 mt-2 flex-wrap">
+          <span class="badge rounded-pill" style="background:#e6edea;color:#0c4a34;font-size:.75rem;">
+            {{ a.servico_agendado or '—' }}
+          </span>
+          {% if a.observacoes %}
+          <span class="text-muted" style="font-size:.78rem;">
+            <i class="bi bi-chat-left-text me-1"></i>{{ a.observacoes }}
+          </span>
+          {% endif %}
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <div class="text-center text-muted py-4">
+        <i class="bi bi-calendar-check fs-3 d-block mb-2"></i>Nenhum agendamento futuro.
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Tabela desktop -->
+  <div class="d-none d-md-block table-responsive">
     <table class="table mb-0">
       <thead>
         <tr>
