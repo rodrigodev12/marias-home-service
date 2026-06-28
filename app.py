@@ -646,6 +646,12 @@ def agendamento_cliente_publico():
         periodo     = request.form.get('periodo', '').strip()
         observacoes = request.form.get('observacoes', '').strip()
 
+        # Captura o valor calculado em tempo real pelo cliente
+        try:
+            valor_total = float(request.form.get('valor_total', '0').replace(',', '.').strip())
+        except (ValueError, AttributeError):
+            valor_total = 0.0
+
         if not all([nome, telefone, servico, data, periodo]):
             flash('Preencha todos os campos obrigatórios.', 'danger')
             return render_template('agendamento_cliente.html',
@@ -681,9 +687,9 @@ def agendamento_cliente_publico():
 
         db.execute(
             '''INSERT INTO agendamentos
-               (id_cliente, id_prestadora, data, horario, status, servico_agendado, observacoes)
-               VALUES (?, NULL, ?, ?, 'Pendente', ?, ?)''',
-            (id_cliente, data, periodo, servico, observacoes)
+               (id_cliente, id_prestadora, data, horario, status, servico_agendado, observacoes, valor_cliente)
+               VALUES (?, NULL, ?, ?, 'Pendente', ?, ?, ?)''',
+            (id_cliente, data, periodo, servico, observacoes, valor_total)
         )
         db.commit()
         return redirect(url_for('agendamento_cliente_sucesso'))
