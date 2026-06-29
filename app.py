@@ -650,7 +650,7 @@ def financeiro():
 # ---------------------------------------------------------------------------
 
 SERVICOS_OPCOES = ['Diarista', 'Passadeira', 'Babá', 'Cozinheira']
-PERIODOS_OPCOES = ['Manhã (07h às 12h)', 'Tarde (13h às 18h)', 'Integral']
+PERIODOS_OPCOES = ['Manhã (07h às 13h)', 'Tarde (13h às 19h)', 'Integral (08h às 16h)']
 
 
 @app.route('/agendamento_cliente', methods=['GET', 'POST'])
@@ -737,10 +737,9 @@ DISPONIBILIDADE_OPCOES = [
 ]
 
 HORARIOS_OPCOES = [
-    'Manhã (07h às 12h)',
-    'Tarde (13h às 18h)',
-    'Noite (18h às 22h)',
-    'Integral'
+    'Manhã (07h às 13h)',
+    'Tarde (13h às 19h)',
+    'Integral (08h às 16h)'
 ]
 
 
