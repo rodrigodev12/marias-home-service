@@ -178,7 +178,8 @@ def init_db():
                 db.execute(f'ALTER TABLE agendamentos ADD COLUMN {col} {ctype}')
 
         for col, ctype in [
-            ('bairro', 'TEXT'), ('referencias', 'TEXT'), ('preferencia_horario', 'TEXT')
+            ('bairro', 'TEXT'), ('referencias', 'TEXT'), ('preferencia_horario', 'TEXT'),
+            ('obs_disponibilidade', 'TEXT')
         ]:
             if not _col_exists(db, 'prestadoras', col):
                 db.execute(f'ALTER TABLE prestadoras ADD COLUMN {col} {ctype}')
@@ -751,8 +752,9 @@ def cadastro_prestadora_publico():
         bairro              = request.form.get('bairro', '').strip()
         especialidades      = request.form.getlist('especialidades')
         disponibilidade     = request.form.getlist('disponibilidade')
-        referencias         = request.form.get('referencias', 'Não').strip()
-        preferencia_horario = request.form.get('preferencia_horario', '').strip()
+        referencias            = request.form.get('referencias', 'Não').strip()
+        preferencia_horario    = request.form.get('preferencia_horario', '').strip()
+        obs_disponibilidade    = request.form.get('obs_disponibilidade', '').strip()
 
         if not nome or not telefone:
             flash('Nome e Telefone são obrigatórios.', 'danger')
@@ -774,9 +776,11 @@ def cadastro_prestadora_publico():
         db = get_db()
         db.execute(
             '''INSERT INTO prestadoras
-               (nome, telefone, especialidades, disponibilidade, bairro, referencias, preferencia_horario)
-               VALUES (?, ?, ?, ?, ?, ?, ?)''',
-            (nome, telefone, esp_str, disp_str, bairro, referencias, preferencia_horario)
+               (nome, telefone, especialidades, disponibilidade, bairro, referencias,
+                preferencia_horario, obs_disponibilidade)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?)''',
+            (nome, telefone, esp_str, disp_str, bairro, referencias,
+             preferencia_horario, obs_disponibilidade)
         )
         db.commit()
         return redirect(url_for('cadastro_prestadora_sucesso'))

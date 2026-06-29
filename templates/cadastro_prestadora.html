@@ -267,6 +267,18 @@
         {% endfor %}
       </div>
 
+      <!-- Observações de disponibilidade -->
+      <div class="mb-1 mt-3">
+        <label for="obs_disponibilidade" style="font-size:.82rem; font-weight:600; color:#0c4a34; display:block; margin-bottom:.4rem;">
+          📝 Detalhes sobre sua disponibilidade <span style="font-weight:400; color:#9ca3af;">(opcional)</span>
+        </label>
+        <textarea id="obs_disponibilidade" name="obs_disponibilidade" rows="3"
+          placeholder="Ex: Só posso trabalhar a partir das 8h, prefiro segunda e quarta, estou disponível em feriados..."
+          style="width:100%; border-radius:12px; border:1.5px solid #e5e7eb; padding:.65rem 1rem; font-size:.88rem; font-family:inherit; resize:vertical; transition:border-color .2s; outline:none;"
+          onfocus="this.style.borderColor='#0c4a34'; this.style.boxShadow='0 0 0 3px rgba(12,74,52,.12)'"
+          onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'"></textarea>
+      </div>
+
       <!-- Referências -->
       <div class="section-title"><i class="bi bi-patch-check-fill"></i> Referências</div>
       <p class="text-muted mb-2" style="font-size:.82rem;">Você possui referências de trabalhos anteriores?</p>
