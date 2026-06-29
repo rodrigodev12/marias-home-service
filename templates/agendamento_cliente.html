@@ -530,13 +530,13 @@
     // ── Tabela de preços Diarista (cruzamento: período × quartos) ──
     const PRECOS_DIARISTA = {
       integral: { '1': 150, '2': 200, '3': 250, '4': 300 },
-      turno:    { '1': 100, '2': 120, '3': 140, '4': 160 }  // manhã ou tarde
+      turno: { '1': 100, '2': 150, '3': 200, '4': 250 }  // manhã ou tarde
     };
 
-    const quartosWrapper  = document.getElementById('quartos-wrapper');
-    const quartosSelect   = document.getElementById('quartos');
-    const orcamentoCard   = document.getElementById('orcamento-card');
-    const orcamentoValor  = document.getElementById('orcamento-valor');
+    const quartosWrapper = document.getElementById('quartos-wrapper');
+    const quartosSelect = document.getElementById('quartos');
+    const orcamentoCard = document.getElementById('orcamento-card');
+    const orcamentoValor = document.getElementById('orcamento-valor');
     const valorTotalInput = document.getElementById('valor_total');
 
     // Formata número para BRL
@@ -563,7 +563,7 @@
         return;
       }
 
-      const quartos    = quartosSelect.value;
+      const quartos = quartosSelect.value;
       const tipoPeriodo = getTipoPeriodo();
 
       // Precisa de ambos: quartos e período

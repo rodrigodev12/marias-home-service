@@ -272,7 +272,9 @@ def dashboard():
         SELECT a.id, c.nome AS cliente,
                COALESCE(p.nome, '— A definir') AS prestadora,
                a.id_prestadora,
-               a.data, a.horario, a.status, a.servico_agendado, a.observacoes
+               a.data, a.horario, a.status, a.servico_agendado, a.observacoes,
+               COALESCE(a.valor_cliente, 0)    AS valor_cliente,
+               COALESCE(a.valor_prestadora, 0) AS valor_prestadora
         FROM   agendamentos a
         JOIN   clientes     c ON c.id = a.id_cliente
         LEFT JOIN prestadoras p ON p.id = a.id_prestadora
@@ -284,7 +286,9 @@ def dashboard():
         SELECT a.id, c.nome AS cliente,
                COALESCE(p.nome, '— A definir') AS prestadora,
                a.id_prestadora,
-               a.data, a.horario, a.status, a.servico_agendado, a.observacoes
+               a.data, a.horario, a.status, a.servico_agendado, a.observacoes,
+               COALESCE(a.valor_cliente, 0)    AS valor_cliente,
+               COALESCE(a.valor_prestadora, 0) AS valor_prestadora
         FROM   agendamentos a
         JOIN   clientes     c ON c.id = a.id_cliente
         LEFT JOIN prestadoras p ON p.id = a.id_prestadora

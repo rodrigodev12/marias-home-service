@@ -216,7 +216,7 @@
         {% if agendamentos_hoje %}
           {% for a in agendamentos_hoje %}
           <tr>
-            <td class="text-muted">#{{ a.id }}</td>
+            <td class="text-muted">#{{ loop.index }}</td>
             <td><i class="bi bi-person-circle me-1 text-muted"></i>{{ a.cliente }}</td>
             <td>
               <i class="bi bi-person-badge me-1 text-muted"></i>{{ a.prestadora }}
@@ -225,7 +225,9 @@
                       data-bs-toggle="modal" data-bs-target="#modalAtribuir"
                       data-id="{{ a.id }}"
                       data-cliente="{{ a.cliente }}"
-                      data-servico="{{ a.servico_agendado }}">
+                      data-servico="{{ a.servico_agendado }}"
+                      data-valor-cliente="{{ a.valor_cliente }}"
+                      data-valor-prestadora="{{ a.valor_prestadora }}">
                 Atribuir
               </button>
               {% endif %}
@@ -331,7 +333,7 @@
         {% if proximos_agendamentos %}
           {% for a in proximos_agendamentos %}
           <tr>
-            <td class="text-muted">#{{ a.id }}</td>
+            <td class="text-muted">#{{ loop.index }}</td>
             <td>{{ a.data }}</td>
             <td>{{ a.cliente }}</td>
             <td>
@@ -341,7 +343,9 @@
                       data-bs-toggle="modal" data-bs-target="#modalAtribuir"
                       data-id="{{ a.id }}"
                       data-cliente="{{ a.cliente }}"
-                      data-servico="{{ a.servico_agendado }}">
+                      data-servico="{{ a.servico_agendado }}"
+                      data-valor-cliente="{{ a.valor_cliente }}"
+                      data-valor-prestadora="{{ a.valor_prestadora }}">
                 Atribuir
               </button>
               {% endif %}
@@ -457,10 +461,18 @@
       document.getElementById('atribuir_cliente').textContent = cliente;
       document.getElementById('atribuir_servico').textContent = servico;
 
-      // Limpa campos financeiros
-      document.getElementById('modal_valor_cliente').value = '';
-      document.getElementById('modal_valor_prestadora').value = '';
-      document.getElementById('lucro_preview').style.display = 'none';
+      // Pré-preenche com o valor que o cliente já definiu no formulário público
+      const valorCliente = parseFloat(button.dataset.valorCliente) || 0;
+      const valorPrestadora = parseFloat(button.dataset.valorPrestadora) || 0;
+      document.getElementById('modal_valor_cliente').value    = valorCliente    > 0 ? valorCliente.toFixed(2)    : '';
+      document.getElementById('modal_valor_prestadora').value = valorPrestadora > 0 ? valorPrestadora.toFixed(2) : '';
+
+      // Atualiza preview do lucro se houver valores
+      if (valorCliente > 0 || valorPrestadora > 0) {
+        atualizarLucro();
+      } else {
+        document.getElementById('lucro_preview').style.display = 'none';
+      }
     });
 
     // Preview do lucro em tempo real
