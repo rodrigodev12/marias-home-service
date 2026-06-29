@@ -1,7 +1,8 @@
 import os
 import psycopg2
 import psycopg2.extras
-from datetime import date
+from datetime import date, datetime
+from zoneinfo import ZoneInfo
 from functools import wraps
 from flask import Flask, render_template, request, redirect, url_for, flash, g, session
 
@@ -246,8 +247,9 @@ def logout():
 def dashboard():
     db = get_db()
 
-    hoje_br  = date.today().strftime('%d/%m/%Y')
-    hoje_iso = date.today().isoformat()
+    _agora   = datetime.now(ZoneInfo('America/Sao_Paulo'))
+    hoje_br  = _agora.strftime('%d/%m/%Y')
+    hoje_iso = _agora.date().isoformat()
 
     total_clientes     = db.execute('SELECT COUNT(*) AS total FROM clientes').fetchone()['total']
     total_prestadoras  = db.execute('SELECT COUNT(*) AS total FROM prestadoras').fetchone()['total']
@@ -376,15 +378,30 @@ def editar_cliente(id):
     return render_template('editar_cliente.html', cliente=cliente)
 
 
-@app.route('/clientes/<int:id>/excluir', methods=['POST'])
+@app.route('/clientes/<int:id>/excluir', methods=['GET', 'POST'])
 @login_required
 def excluir_cliente(id):
+    # Acesso direto via GET não é permitido → redireciona sem executar nada
+    if request.method == 'GET':
+        flash('Ação inválida. Use o botão de exclusão na lista de clientes.', 'warning')
+        return redirect(url_for('listar_clientes'))
+
     db = get_db()
     cliente = db.execute('SELECT nome FROM clientes WHERE id = ?', (id,)).fetchone()
     if cliente:
-        db.execute('DELETE FROM clientes WHERE id = ?', (id,))
-        db.commit()
-        flash(f'Cliente "{cliente["nome"]}" excluído.', 'warning')
+        try:
+            db.execute('DELETE FROM clientes WHERE id = ?', (id,))
+            db.commit()
+            flash(f'Cliente "{cliente["nome"]}" excluído com sucesso.', 'warning')
+        except Exception:
+            db.rollback()
+            flash(
+                f'Não foi possível excluir o cliente "{cliente["nome"]}" pois ele possui '
+                'agendamentos vinculados. Exclua os agendamentos primeiro.',
+                'danger'
+            )
+    else:
+        flash('Cliente não encontrado.', 'danger')
     return redirect(url_for('listar_clientes'))
 
 

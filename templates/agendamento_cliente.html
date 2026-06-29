@@ -461,12 +461,27 @@
         <label for="quartos" class="form-label">Quantidade de Quartos <span class="text-danger">*</span></label>
         <select id="quartos" name="quartos" class="form-select">
           <option value="" disabled selected>Selecione a quantidade de quartos</option>
-          <option value="1">🛏️ 1 Quarto — R$ 150,00</option>
-          <option value="2">🛏️ 2 Quartos — R$ 200,00</option>
-          <option value="3">🛏️ 3 Quartos — R$ 250,00</option>
-          <option value="4">🛏️ 4 Quartos — R$ 300,00</option>
+          <option value="1">🛏️ 1 Quarto</option>
+          <option value="2">🛏️ 2 Quartos</option>
+          <option value="3">🛏️ 3 Quartos</option>
+          <option value="4">🛏️ 4 Quartos</option>
         </select>
       </div>
+
+      <!-- Período -->
+      <p class="text-muted mb-2" style="font-size:.82rem;">Período de preferência <span class="text-danger">*</span></p>
+      <div class="periodo-grid mb-2">
+        {% for p in periodos_opcoes %}
+        <label class="periodo-label">
+          <input type="radio" name="periodo" value="{{ p }}" required>
+          {% if 'Manh' in p %}🌅 Manhã{% elif 'Tarde' in p %}☀️ Tarde{% else %}⏰ Integral{% endif %}
+        </label>
+        {% endfor %}
+      </div>
+      <!-- Legenda informativa sobre os períodos -->
+      <p class="text-muted mb-3" style="font-size:.77rem; line-height:1.4;">
+        *Período integral equivale a 8h trabalhadas. Turnos da manhã ou tarde equivalem a 6h trabalhadas.
+      </p>
 
       <!-- Card de orçamento em tempo real -->
       <div id="orcamento-card" class="orcamento-card">
@@ -484,17 +499,6 @@
       <div class="mb-3">
         <label for="data" class="form-label">Data Desejada <span class="text-danger">*</span></label>
         <input type="date" id="data" name="data" class="form-control" required>
-      </div>
-
-      <!-- Período -->
-      <p class="text-muted mb-2" style="font-size:.82rem;">Período de preferência <span class="text-danger">*</span></p>
-      <div class="periodo-grid mb-3">
-        {% for p in periodos_opcoes %}
-        <label class="periodo-label">
-          <input type="radio" name="periodo" value="{{ p }}" required>
-          {% if 'Manh' in p %}🌅 Manhã{% elif 'Tarde' in p %}☀️ Tarde{% else %}⏰ Integral{% endif %}
-        </label>
-        {% endfor %}
       </div>
 
       <!-- Observações -->
@@ -523,13 +527,16 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // ── Tabela de preços Diarista ──
-    const PRECOS_DIARISTA = { '1': 150, '2': 200, '3': 250, '4': 300 };
+    // ── Tabela de preços Diarista (cruzamento: período × quartos) ──
+    const PRECOS_DIARISTA = {
+      integral: { '1': 150, '2': 200, '3': 250, '4': 300 },
+      turno:    { '1': 100, '2': 120, '3': 140, '4': 160 }  // manhã ou tarde
+    };
 
-    const quartosWrapper = document.getElementById('quartos-wrapper');
-    const quartosSelect = document.getElementById('quartos');
-    const orcamentoCard = document.getElementById('orcamento-card');
-    const orcamentoValor = document.getElementById('orcamento-valor');
+    const quartosWrapper  = document.getElementById('quartos-wrapper');
+    const quartosSelect   = document.getElementById('quartos');
+    const orcamentoCard   = document.getElementById('orcamento-card');
+    const orcamentoValor  = document.getElementById('orcamento-valor');
     const valorTotalInput = document.getElementById('valor_total');
 
     // Formata número para BRL
@@ -537,22 +544,36 @@
       return 'R$ ' + valor.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     }
 
-    // Atualiza o card e o hidden com o preço calculado
+    // Retorna a chave de faixa de preço conforme o período selecionado
+    function getTipoPeriodo() {
+      const p = document.querySelector('input[name="periodo"]:checked');
+      if (!p) return null;
+      // "Integral" contém a palavra Integral; Manhã e Tarde são turnos
+      return p.value.toLowerCase().includes('integral') ? 'integral' : 'turno';
+    }
+
+    // Atualiza o card e o hidden com o preço calculado (cruzamento período × quartos)
     function atualizarOrcamento() {
       const servicoSelecionado = document.querySelector('input[name="servico"]:checked');
+
+      // Só mostra orçamento para Diarista
       if (!servicoSelecionado || servicoSelecionado.value !== 'Diarista') {
-        // Esconde card e zera valor
         orcamentoCard.classList.remove('show');
         valorTotalInput.value = '0';
         return;
       }
-      const quartos = quartosSelect.value;
-      if (!quartos || !PRECOS_DIARISTA[quartos]) {
+
+      const quartos    = quartosSelect.value;
+      const tipoPeriodo = getTipoPeriodo();
+
+      // Precisa de ambos: quartos e período
+      if (!quartos || !tipoPeriodo) {
         orcamentoCard.classList.remove('show');
         valorTotalInput.value = '0';
         return;
       }
-      const preco = PRECOS_DIARISTA[quartos];
+
+      const preco = PRECOS_DIARISTA[tipoPeriodo][quartos];
       orcamentoValor.textContent = formatarBRL(preco);
       valorTotalInput.value = preco.toFixed(2);
       orcamentoCard.classList.add('show');
@@ -580,11 +601,12 @@
     // Atualiza preço quando troca quantidade de quartos
     quartosSelect.addEventListener('change', atualizarOrcamento);
 
-    // Radio chips — período
+    // Radio chips — período: atualiza visual E recalcula orçamento
     document.querySelectorAll('.periodo-label').forEach(label => {
       label.querySelector('input').addEventListener('change', function () {
         document.querySelectorAll('.periodo-label').forEach(l => l.classList.remove('selected'));
         if (this.checked) label.classList.add('selected');
+        atualizarOrcamento(); // recalcula ao trocar período
       });
     });
 
