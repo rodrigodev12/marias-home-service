@@ -150,7 +150,7 @@
         {% if historico %}
           {% for a in historico %}
           <tr class="fin-row">
-            <td class="text-muted">#{{ a.id }}</td>
+            <td class="text-muted">#{{ loop.index }}</td>
             <td>{{ a.data }}</td>
             <td><i class="bi bi-person-circle me-1 text-muted"></i>{{ a.cliente }}</td>
             <td><i class="bi bi-person-badge me-1 text-muted"></i>{{ a.prestadora }}</td>

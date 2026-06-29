@@ -33,7 +33,7 @@
         {% if agendamentos %}
           {% for a in agendamentos %}
           <tr>
-            <td class="text-muted">#{{ a.id }}</td>
+            <td class="text-muted">#{{ loop.index }}</td>
             <td><i class="bi bi-calendar3 me-1 text-muted"></i>{{ a.data }}</td>
             <td><i class="bi bi-clock me-1 text-muted"></i>{{ a.horario }}</td>
             <td>{{ a.cliente }}</td>
