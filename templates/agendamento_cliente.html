@@ -459,45 +459,83 @@
 
     #aviso-fds.show { display: flex; align-items: center; gap: .5rem; }
 
-    /* ── Detalhes do Serviço Dinâmico ── */
-    .detalhes-servico-card {
-      display: none;
-      background: #f0fdf4;
-      border: 1.5px solid #bbf7d0;
+    /* ── Accordion de Serviços ── */
+    .servicos-container {
+      display: flex;
+      flex-direction: column;
+      gap: .75rem;
+    }
+
+    .servico-item-wrapper {
+      border: 2px solid var(--gray-border);
       border-radius: 16px;
-      padding: 1.1rem 1.25rem;
-      margin-bottom: 1.25rem;
-      font-size: .85rem;
-      color: #166534;
-      animation: fadeSlideDown .35s cubic-bezier(.34, 1.2, .64, 1);
-      position: relative;
       overflow: hidden;
-      box-shadow: 0 4px 12px rgba(22, 101, 52, 0.04);
+      transition: all .3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      background: #fff;
     }
 
-    .detalhes-servico-card.show {
-      display: block;
+    .servico-item-wrapper:hover {
+      border-color: var(--orange);
     }
 
-    .detalhes-servico-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0;
-      width: 4px; height: 100%;
-      background: linear-gradient(180deg, #22c55e, #16a34a);
-      border-radius: 16px 0 0 16px;
+    .servico-item-wrapper.selected {
+      border-color: var(--green-mid);
+      box-shadow: 0 8px 24px rgba(12, 74, 52, 0.12);
     }
 
-    .detalhes-servico-titulo {
-      font-size: .78rem;
-      font-weight: 700;
-      color: #166534;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-      margin-bottom: .5rem;
+    .servico-header {
+      cursor: pointer;
+      padding: 1.1rem 1.25rem;
       display: flex;
       align-items: center;
-      gap: .35rem;
+      justify-content: space-between;
+      user-select: none;
+      font-weight: 700;
+      color: var(--green-mid);
+      transition: all .2s;
+    }
+
+    .servico-header:hover {
+      background: #fdfaf7;
+    }
+
+    .servico-item-wrapper.selected .servico-header {
+      background: var(--green-mid);
+      color: #fff;
+    }
+
+    .accordion-arrow {
+      font-size: .9rem;
+      transition: transform .3s ease;
+      color: var(--gray-text);
+    }
+
+    .servico-item-wrapper.selected .accordion-arrow {
+      transform: rotate(180deg);
+      color: #fff;
+    }
+
+    .detalhes-servico-individual {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: max-height .35s cubic-bezier(0.4, 0, 0.2, 1), opacity .3s ease, padding .35s ease;
+      background: #f0fdf4;
+      color: #166534;
+      font-size: .85rem;
+      border-top: 0 solid #bbf7d0;
+      padding: 0 1.25rem;
+    }
+
+    .servico-item-wrapper.selected .detalhes-servico-individual {
+      max-height: 500px;
+      opacity: 1;
+      padding: 1.15rem 1.25rem;
+      border-top: 1.5px solid #bbf7d0;
+    }
+
+    .servico-icon {
+      font-size: 1.2rem;
     }
 
     /* ── Botão de envio ── */
@@ -845,40 +883,48 @@
         Qual serviço você precisa? <span class="text-danger" aria-hidden="true">*</span>
       </p>
 
-      <div class="chip-grid mb-3" id="chip-servicos" role="group" aria-label="Selecione o serviço">
+      <div class="servicos-container mb-4" id="chip-servicos" role="group" aria-label="Selecione o serviço">
         {% for s in servicos_opcoes %}
-        <label class="chip-label" id="label-{{ s }}">
-          <input type="radio" name="servico" value="{{ s }}" required aria-required="true">
-          <span>
-            {% if s == 'Diarista' %}✨{% elif s == 'Passadeira' %}👔{% elif s == 'Babá' %}👶{% elif s == 'Cozinheira' %}🍳{% endif %}
-            {{ s }}
-          </span>
-          <span class="info-link" onclick="abrirDetalhes('{{ s }}', event)" role="button" tabindex="0"
-                aria-label="Ver detalhes do serviço {{ s }}">
-            <i class="bi bi-info-circle" aria-hidden="true"></i> Ver o que inclui
-          </span>
-        </label>
-        {% endfor %}
-      </div>
-
-      <!-- Card dinâmico de detalhes do serviço selecionado -->
-      <div id="detalhes-servico-selecionado" class="detalhes-servico-card" aria-live="polite">
-        <div class="detalhes-servico-titulo">
-          <i class="bi bi-info-circle-fill"></i> O que está incluso no serviço
+        <div class="servico-item-wrapper" id="wrapper-{{ s }}">
+          <div class="servico-header" role="button" tabindex="0" aria-expanded="false" aria-controls="detalhes-{{ s }}">
+            <div class="d-flex align-items-center gap-2">
+              <input type="radio" name="servico" value="{{ s }}" id="radio-{{ s }}" style="display: none;" required aria-required="true">
+              <span class="servico-icon">
+                {% if s == 'Diarista' %}✨{% elif s == 'Passadeira' %}👔{% elif s == 'Babá' %}👶{% elif s == 'Cozinheira' %}🍳{% endif %}
+              </span>
+              <span class="servico-nome">{{ s }}</span>
+            </div>
+            <i class="bi bi-chevron-down accordion-arrow"></i>
+          </div>
+          <div class="detalhes-servico-individual" id="detalhes-{{ s }}">
+            <div class="detalhes-texto-conteudo">
+              {% if s == 'Diarista' %}
+                <strong>O que está incluso:</strong><br>• Limpeza geral de salas, quartos, banheiros e cozinha.<br>• Retirada de lixos e organização básica de superfícies.<br>• Limpeza de pisos, poeira de móveis e janelas internas.<br><br><em>*Não inclui limpeza pesada pós-obra ou lavagem de tapetes/cortinas.</em>
+              {% elif s == 'Passadeira' %}
+                <strong>O que está incluso:</strong><br>• Passadoria de roupas de uso diário (camisas, calças, camisetas).<br>• Organização de peças prontas em cabides ou dobradas.<br>• Cuidados com tecidos delicados conforme instruções.<br><br><em>*É necessário que o cliente disponibilize ferro de passar e tábua adequados.</em>
+              {% elif s == 'Babá' %}
+                <strong>O que está incluso:</strong><br>• Cuidados gerais e atenção contínua à criança no período solicitado.<br>• Auxílio na alimentação, higiene pessoal e troca de roupas.<br>• Atividades lúdicas, brincadeiras e acompanhamento seguro.<br><br><em>*Para contratos pontuais ou recorrentes de suporte aos pais.</em>
+              {% elif s == 'Cozinheira' %}
+                <strong>O que está incluso:</strong><br>• Preparo de refeições diárias (almoço e/ou jantar conforme cardápio combinado).<br>• Higienização e organização básica da cozinha após o preparo.<br>• Armazenamento correto dos alimentos na geladeira.<br><br><em>*Ingredientes e insumos são de responsabilidade do contratante.</em>
+              {% endif %}
+            </div>
+            
+            {% if s == 'Diarista' %}
+            <div id="quartos-wrapper" class="mt-3 pt-3 border-top">
+              <label for="quartos" class="form-label text-dark">Quantos quartos tem no seu imóvel? <span class="text-danger" aria-hidden="true">*</span></label>
+              <select id="quartos" name="quartos" class="form-select" aria-required="true">
+                <option value="" disabled selected>Selecione a quantidade de quartos</option>
+                <option value="1">🛏️ 1 Quarto</option>
+                <option value="2">🛏️ 2 Quartos</option>
+                <option value="3">🛏️ 3 Quartos</option>
+                <option value="4">🛏️ 4 Quartos</option>
+              </select>
+              <div class="invalid-feedback" role="alert">Selecione a quantidade de quartos.</div>
+            </div>
+            {% endif %}
+          </div>
         </div>
-        <div id="detalhes-servico-texto"></div>
-      </div>
-
-      <div id="quartos-wrapper" class="mb-3">
-        <label for="quartos" class="form-label">Quantos quartos tem no seu imóvel? <span class="text-danger" aria-hidden="true">*</span></label>
-        <select id="quartos" name="quartos" class="form-select" aria-required="true">
-          <option value="" disabled selected>Selecione a quantidade de quartos</option>
-          <option value="1">🛏️ 1 Quarto</option>
-          <option value="2">🛏️ 2 Quartos</option>
-          <option value="3">🛏️ 3 Quartos</option>
-          <option value="4">🛏️ 4 Quartos</option>
-        </select>
-        <div class="invalid-feedback" role="alert">Selecione a quantidade de quartos.</div>
+        {% endfor %}
       </div>
 
       <p class="text-muted mb-2" style="font-size:.82rem;">
@@ -1140,32 +1186,46 @@
       return ok;
     }
 
-    // ── Chips de serviço ──
-    const detalhesServicoCard = document.getElementById('detalhes-servico-selecionado');
-    const detalhesServicoTexto = document.getElementById('detalhes-servico-texto');
+    // ── Accordion / Seleção de Serviços ──
+    document.querySelectorAll('#chip-servicos .servico-header').forEach(header => {
+      header.addEventListener('click', function () {
+        const wrapper = this.closest('.servico-item-wrapper');
+        const input   = this.querySelector('input[type="radio"]');
+        const jaSelecionado = wrapper.classList.contains('selected');
 
-    document.querySelectorAll('#chip-servicos .chip-label').forEach(label => {
-      const input = label.querySelector('input[type="radio"]');
-      input.addEventListener('change', function () {
-        document.querySelectorAll('#chip-servicos .chip-label').forEach(l => l.classList.remove('selected'));
-        if (this.checked) label.classList.add('selected');
+        // Desmarca todos primeiro
+        document.querySelectorAll('#chip-servicos .servico-item-wrapper').forEach(w => {
+          w.classList.remove('selected');
+          const rad = w.querySelector('input[type="radio"]');
+          if (rad) rad.checked = false;
+        });
 
-        // Mostra e anima o card de detalhes do serviço
-        if (this.checked && DETALHES_SERVICOS[this.value]) {
-          detalhesServicoTexto.innerHTML = DETALHES_SERVICOS[this.value];
-          detalhesServicoCard.classList.add('show');
+        if (jaSelecionado) {
+          // Se já estava selecionado, desmarca e recolhe tudo
+          input.checked = false;
+          wrapper.classList.remove('selected');
         } else {
-          detalhesServicoCard.classList.remove('show');
+          // Caso contrário, seleciona e expande o atual
+          input.checked = true;
+          wrapper.classList.add('selected');
         }
 
-        if (this.value === 'Diarista') {
-          quartosWrapper.classList.add('show');
-        } else {
-          quartosWrapper.classList.remove('show');
+        // Reseta o seletor de quartos da diarista se ele for ocultado
+        const diaristaSelecionada = document.querySelector('input[name="servico"]:checked')?.value === 'Diarista';
+        if (!diaristaSelecionada && quartosSelect) {
           quartosSelect.value = '';
         }
+
         atualizarOrcamento();
         validarFormularioCompleto();
+      });
+
+      // Suporte à navegação por teclado (Acessibilidade)
+      header.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          this.click();
+        }
       });
     });
 
