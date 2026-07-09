@@ -773,16 +773,18 @@
                placeholder="Rua e número" autocomplete="street-address">
       </div>
 
-      <div class="row g-3 mb-3">
-        <div class="col-sm-6">
-          <label for="complemento" class="form-label">Complemento</label>
-          <input type="text" id="complemento" name="complemento" class="form-control"
-                 placeholder="Apto, bloco, casa..." autocomplete="address-line2">
-        </div>
-        <div class="col-sm-6">
-          <label for="bairro" class="form-label">Bairro</label>
-          <input type="text" id="bairro" name="bairro" class="form-control" placeholder="Ex: Cohab">
-        </div>
+      <div class="mb-3">
+        <label for="bairro" class="form-label">Bairro</label>
+        <input type="text" id="bairro" name="bairro" class="form-control" placeholder="Preenchido pelo CEP">
+      </div>
+
+      <div class="mb-3">
+        <label for="complemento" class="form-label">
+          Complemento
+          <span class="text-muted fw-normal" style="font-size:.78rem;">(opcional)</span>
+        </label>
+        <input type="text" id="complemento" name="complemento" class="form-control"
+               placeholder="Ex: Apto 301, Bloco B, Casa dos fundos..." autocomplete="address-line2">
       </div>
 
       <!-- ── Detalhes do Serviço ── -->
