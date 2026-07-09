@@ -168,11 +168,12 @@ def init_db():
 
         # ── Migrações seguras: adiciona colunas que possam estar faltando ──
         for col, ctype in [
-            ('servico_agendado', 'TEXT'),
-            ('observacoes', 'TEXT'),
-            ('valor_cliente',    'NUMERIC(10,2) DEFAULT 0'),
-            ('valor_prestadora', 'NUMERIC(10,2) DEFAULT 0'),
-            ('lucro_empresa',    'NUMERIC(10,2) DEFAULT 0'),
+            ('servico_agendado',  'TEXT'),
+            ('observacoes',       'TEXT'),
+            ('valor_cliente',     'NUMERIC(10,2) DEFAULT 0'),
+            ('valor_prestadora',  'NUMERIC(10,2) DEFAULT 0'),
+            ('lucro_empresa',     'NUMERIC(10,2) DEFAULT 0'),
+            ('forma_pagamento',   'TEXT'),
         ]:
             if not _col_exists(db, 'agendamentos', col):
                 db.execute(f'ALTER TABLE agendamentos ADD COLUMN {col} {ctype}')
@@ -663,10 +664,11 @@ def agendamento_cliente_publico():
         endereco = request.form.get('endereco', '').strip()
         bairro   = request.form.get('bairro', '').strip()
 
-        servico     = request.form.get('servico', '').strip()
-        data        = formatar_data_para_br(request.form.get('data', '').strip())
-        periodo     = request.form.get('periodo', '').strip()
-        observacoes = request.form.get('observacoes', '').strip()
+        servico          = request.form.get('servico', '').strip()
+        data             = formatar_data_para_br(request.form.get('data', '').strip())
+        periodo          = request.form.get('periodo', '').strip()
+        observacoes      = request.form.get('observacoes', '').strip()
+        forma_pagamento  = request.form.get('forma_pagamento', '').strip()
 
         # Captura o valor calculado em tempo real pelo cliente
         try:
@@ -709,9 +711,10 @@ def agendamento_cliente_publico():
 
         db.execute(
             '''INSERT INTO agendamentos
-               (id_cliente, id_prestadora, data, horario, status, servico_agendado, observacoes, valor_cliente)
-               VALUES (?, NULL, ?, ?, 'Pendente', ?, ?, ?)''',
-            (id_cliente, data, periodo, servico, observacoes, valor_total)
+               (id_cliente, id_prestadora, data, horario, status,
+                servico_agendado, observacoes, valor_cliente, forma_pagamento)
+               VALUES (?, NULL, ?, ?, 'Pendente', ?, ?, ?, ?)''',
+            (id_cliente, data, periodo, servico, observacoes, valor_total, forma_pagamento)
         )
         db.commit()
         return redirect(url_for('agendamento_cliente_sucesso'))

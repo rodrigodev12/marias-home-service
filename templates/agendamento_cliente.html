@@ -5,24 +5,61 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Solicitar Agendamento · Maria's Home Service</title>
-  <meta name="description" content="Solicite um agendamento de serviço doméstico com a Maria's Home Service." />
+  <meta name="description" content="Solicite um agendamento de serviço doméstico com a Maria's Home Service. Rápido, seguro e prático." />
   <link rel="icon" type="image/png" href="{{ url_for('static', filename='logo03.png') }}">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
 
   <style>
-    * {
-      font-family: 'Inter', sans-serif;
+    :root {
+      --green-dark: #052e16;
+      --green-mid: #0c4a34;
+      --green-light: #14532d;
+      --green-pale: #d1fae5;
+      --orange: #ff6b00;
+      --orange-hover: #e05e00;
+      --orange-bg: #fff3eb;
+      --gray-border: #e5e7eb;
+      --gray-text: #6b7280;
+      --gray-muted: #9ca3af;
     }
 
+    * { font-family: 'Inter', sans-serif; box-sizing: border-box; }
+
+    /* ── Scrollbar customizada ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: var(--green-mid); border-radius: 3px; }
+
+    /* ── Body com background animado ── */
     body {
       min-height: 100vh;
       background: linear-gradient(135deg, #052e16 0%, #0c4a34 50%, #14532d 100%);
       padding: 2rem 1rem 4rem;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(ellipse at 30% 20%, rgba(255,107,0,.08) 0%, transparent 50%),
+                  radial-gradient(ellipse at 70% 80%, rgba(255,255,255,.04) 0%, transparent 50%);
+      animation: bgPulse 8s ease-in-out infinite alternate;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    @keyframes bgPulse {
+      from { transform: scale(1) rotate(0deg); }
+      to   { transform: scale(1.05) rotate(2deg); }
     }
 
     /* ── Header ── */
@@ -30,30 +67,47 @@
       text-align: center;
       margin-bottom: 2.5rem;
       color: #fff;
+      position: relative;
+      z-index: 1;
     }
 
-    .page-header .brand-icon {
-      width: 72px;
-      height: 72px;
-      background: rgba(255, 255, 255, .15);
+    .logo-wrapper {
+      display: inline-block;
+      padding: 6px;
+      border-radius: 18px;
+      background: rgba(255,255,255,.1);
       backdrop-filter: blur(12px);
-      border-radius: 22px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2rem;
+      border: 1px solid rgba(255,255,255,.2);
+      box-shadow: 0 8px 32px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.15);
       margin-bottom: 1rem;
-      border: 1px solid rgba(255, 255, 255, .25);
+      transition: transform .3s ease, box-shadow .3s ease;
+    }
+
+    .logo-wrapper:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 16px 48px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.2);
+    }
+
+    .logo-wrapper img {
+      height: 88px;
+      width: auto;
+      border-radius: 12px;
+      border: 2px solid var(--orange);
+      display: block;
     }
 
     .page-header h1 {
       font-size: 1.75rem;
       font-weight: 800;
       margin-bottom: .25rem;
+      background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,.8) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
     .page-header p {
-      color: rgba(255, 255, 255, .75);
+      color: rgba(255,255,255,.75);
       font-size: .95rem;
     }
 
@@ -62,9 +116,44 @@
       background: #fff;
       border-radius: 24px;
       padding: 2.5rem 2rem;
-      box-shadow: 0 24px 64px rgba(0, 0, 0, .3);
+      box-shadow: 0 24px 64px rgba(0,0,0,.3), 0 4px 16px rgba(0,0,0,.1);
       max-width: 640px;
       margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Step bar ── */
+    .step-bar {
+      display: flex;
+      margin-bottom: 1.75rem;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1.5px solid var(--green-pale);
+    }
+
+    .step-item {
+      flex: 1;
+      padding: .6rem .5rem;
+      text-align: center;
+      font-size: .72rem;
+      font-weight: 600;
+      background: #f1f8f5;
+      color: var(--gray-text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: .3rem;
+      transition: background .3s, color .3s;
+    }
+
+    .step-item.active {
+      background: var(--green-mid);
+      color: #fff;
+    }
+
+    .step-item:not(:last-child) {
+      border-right: 1.5px solid var(--green-pale);
     }
 
     /* ── Section title ── */
@@ -73,7 +162,7 @@
       font-weight: 700;
       letter-spacing: .12em;
       text-transform: uppercase;
-      color: #0c4a34;
+      color: var(--green-mid);
       margin: 1.75rem 0 .75rem;
       display: flex;
       align-items: center;
@@ -84,29 +173,60 @@
       content: '';
       flex: 1;
       height: 1px;
-      background: #d1fae5;
+      background: var(--green-pale);
     }
 
     /* ── Form controls ── */
     .form-label {
       font-weight: 600;
       font-size: .875rem;
-      color: #0c4a34;
+      color: var(--green-mid);
     }
 
     .form-control,
     .form-select {
       border-radius: 12px;
-      border: 1.5px solid #e5e7eb;
+      border: 1.5px solid var(--gray-border);
       padding: .65rem 1rem;
       font-size: .9rem;
-      transition: border-color .2s, box-shadow .2s;
+      transition: border-color .2s, box-shadow .2s, background .2s;
     }
 
     .form-control:focus,
     .form-select:focus {
-      border-color: #0c4a34;
-      box-shadow: 0 0 0 3px rgba(12, 74, 52, .12);
+      border-color: var(--green-mid);
+      box-shadow: 0 0 0 3px rgba(12,74,52,.12);
+      outline: none;
+    }
+
+    /* Validação em tempo real */
+    .form-control.is-valid,
+    .form-select.is-valid {
+      border-color: #16a34a;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2316a34a' d='M2.3 6.73.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+      background-repeat: no-repeat;
+      background-position: right .75rem center;
+      background-size: 16px 12px;
+      padding-right: 2.5rem;
+    }
+
+    .form-control.is-invalid,
+    .form-select.is-invalid {
+      border-color: #dc2626;
+      box-shadow: 0 0 0 3px rgba(220,38,38,.1);
+    }
+
+    .invalid-feedback {
+      display: none;
+      font-size: .78rem;
+      color: #dc2626;
+      margin-top: .25rem;
+      font-weight: 500;
+    }
+
+    .form-control.is-invalid ~ .invalid-feedback,
+    .form-select.is-invalid ~ .invalid-feedback {
+      display: block;
     }
 
     /* ── Serviço chips ── */
@@ -118,39 +238,87 @@
 
     .chip-label {
       cursor: pointer;
-      padding: .8rem 1rem;
+      padding: .85rem 1rem;
       border-radius: 14px;
-      border: 2px solid #e5e7eb;
+      border: 2px solid var(--gray-border);
       font-size: .875rem;
       font-weight: 500;
-      color: #6b7280;
+      color: var(--gray-text);
       text-align: center;
-      transition: all .2s;
+      transition: all .25s cubic-bezier(.34,1.56,.64,1);
       user-select: none;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: .5rem;
+      gap: .25rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chip-label::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(255,107,0,.08) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity .2s;
     }
 
     .chip-label input[type="radio"] {
       display: none;
     }
 
-    .chip-label input[type="checkbox"] {
-      display: none;
+    .chip-label:hover {
+      border-color: var(--orange);
+      color: var(--orange);
+      background: var(--orange-bg);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(255,107,0,.2);
     }
 
-    .chip-label:hover {
-      border-color: #ff6b00;
-      color: #ff6b00;
-      background: #fff3eb;
-    }
+    .chip-label:hover::before { opacity: 1; }
 
     .chip-label.selected {
-      background: #0c4a34;
-      border-color: #0c4a34;
+      background: var(--green-mid);
+      border-color: var(--green-mid);
       color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(12,74,52,.35);
+    }
+
+    .chip-label.selected::after {
+      content: '✓';
+      position: absolute;
+      top: .35rem;
+      right: .5rem;
+      font-size: .65rem;
+      font-weight: 800;
+      background: rgba(255,255,255,.25);
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: checkPop .25s cubic-bezier(.34,1.56,.64,1);
+    }
+
+    @keyframes checkPop {
+      from { transform: scale(0); }
+      to   { transform: scale(1); }
+    }
+
+    .info-link {
+      font-size: 0.72rem;
+      color: var(--orange);
+      text-decoration: underline;
+      margin-top: 2px;
+      cursor: pointer;
+    }
+
+    .chip-label.selected .info-link {
+      color: rgba(255,255,255,.85);
     }
 
     /* ── Período grid ── */
@@ -164,29 +332,28 @@
       cursor: pointer;
       padding: .7rem .5rem;
       border-radius: 12px;
-      border: 2px solid #e5e7eb;
+      border: 2px solid var(--gray-border);
       font-size: .8rem;
       font-weight: 500;
-      color: #6b7280;
+      color: var(--gray-text);
       text-align: center;
       transition: all .2s;
       user-select: none;
     }
 
-    .periodo-label input[type="radio"] {
-      display: none;
-    }
+    .periodo-label input[type="radio"] { display: none; }
 
     .periodo-label:hover {
-      border-color: #ff6b00;
-      color: #ff6b00;
-      background: #fff3eb;
+      border-color: var(--orange);
+      color: var(--orange);
+      background: var(--orange-bg);
     }
 
     .periodo-label.selected {
-      background: #ff6b00;
-      border-color: #ff6b00;
+      background: var(--orange);
+      border-color: var(--orange);
       color: #fff;
+      box-shadow: 0 4px 12px rgba(255,107,0,.3);
     }
 
     /* ── Textarea ── */
@@ -195,37 +362,30 @@
       min-height: 90px;
     }
 
-    /* ── Quartos dropdown ── */
+    /* ── Quartos wrapper ── */
     #quartos-wrapper {
       display: none;
-      animation: fadeSlideDown .3s ease;
+      overflow: hidden;
     }
 
     #quartos-wrapper.show {
       display: block;
+      animation: fadeSlideDown .35s cubic-bezier(.34,1.2,.64,1);
     }
 
     @keyframes fadeSlideDown {
-      from {
-        opacity: 0;
-        transform: translateY(-8px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(-10px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
     /* ── Card orçamento ── */
     .orcamento-card {
       display: none;
       background: #fffaf5;
-      border: 2px solid #ff6b00;
+      border: 2px solid var(--orange);
       border-radius: 16px;
       padding: 1rem 1.25rem;
       margin-bottom: 1.25rem;
-      animation: fadeSlideDown .3s ease;
       position: relative;
       overflow: hidden;
     }
@@ -235,23 +395,32 @@
       align-items: center;
       justify-content: space-between;
       gap: 1rem;
+      animation: fadeSlideDown .3s ease;
+    }
+
+    .orcamento-card.pulse .orcamento-valor {
+      animation: valuePulse .4s ease;
+    }
+
+    @keyframes valuePulse {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(1.12); color: #e05e00; }
+      100% { transform: scale(1); }
     }
 
     .orcamento-card::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 4px;
-      height: 100%;
-      background: linear-gradient(180deg, #ff6b00, #ff9a00);
+      top: 0; left: 0;
+      width: 4px; height: 100%;
+      background: linear-gradient(180deg, var(--orange), #ff9a00);
       border-radius: 16px 0 0 16px;
     }
 
     .orcamento-label {
       font-size: .78rem;
       font-weight: 600;
-      color: #9ca3af;
+      color: var(--gray-muted);
       text-transform: uppercase;
       letter-spacing: .08em;
       margin: 0;
@@ -260,13 +429,13 @@
     .orcamento-valor {
       font-size: 1.6rem;
       font-weight: 800;
-      color: #ff6b00;
+      color: var(--orange);
       line-height: 1;
-      transition: all .25s ease;
+      transition: color .25s ease;
     }
 
     .orcamento-badge {
-      background: #ff6b00;
+      background: var(--orange);
       color: #fff;
       font-size: .7rem;
       font-weight: 700;
@@ -275,10 +444,25 @@
       white-space: nowrap;
     }
 
-    /* ── Submit ── */
+    /* ── Aviso fim de semana ── */
+    #aviso-fds {
+      display: none;
+      background: #fefce8;
+      border: 1.5px solid #fbbf24;
+      border-radius: 12px;
+      padding: .7rem 1rem;
+      font-size: .8rem;
+      color: #92400e;
+      margin-top: .5rem;
+      animation: fadeSlideDown .3s ease;
+    }
+
+    #aviso-fds.show { display: flex; align-items: center; gap: .5rem; }
+
+    /* ── Botão de envio ── */
     .btn-submit {
       width: 100%;
-      background: #ff6b00;
+      background: var(--orange);
       color: #fff;
       border: none;
       border-radius: 14px;
@@ -287,20 +471,46 @@
       font-weight: 700;
       letter-spacing: .02em;
       margin-top: 1.5rem;
-      transition: background-color .2s, transform .15s;
+      transition: background-color .2s, transform .15s, box-shadow .2s, opacity .2s;
+      position: relative;
+      overflow: hidden;
     }
 
-    .btn-submit:hover {
-      background-color: #e05e00;
+    .btn-submit::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at center, rgba(255,255,255,.2) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity .2s;
+    }
+
+    .btn-submit:hover:not(:disabled) {
+      background-color: var(--orange-hover);
       color: #fff;
       transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(255,107,0,.4);
     }
 
-    .btn-submit:active {
-      transform: translateY(0);
+    .btn-submit:hover:not(:disabled)::after { opacity: 1; }
+
+    .btn-submit:active:not(:disabled) { transform: translateY(0); }
+
+    .btn-submit:disabled {
+      opacity: .65;
+      cursor: not-allowed;
     }
 
-    /* ── Trust badges ── */
+    .btn-submit.loading .btn-text { display: none; }
+    .btn-submit.loading .btn-spinner { display: inline-flex !important; }
+
+    .btn-spinner {
+      display: none;
+      align-items: center;
+      gap: .5rem;
+    }
+
+    /* ── Trust bar ── */
     .trust-bar {
       display: flex;
       gap: 1.25rem;
@@ -316,122 +526,191 @@
       align-items: center;
       gap: .4rem;
       font-size: .75rem;
-      color: #9ca3af;
+      color: var(--gray-muted);
       font-weight: 500;
     }
 
-    .trust-item i {
-      color: #0c4a34;
-      font-size: .9rem;
-    }
+    .trust-item i { color: var(--green-mid); font-size: .9rem; }
 
     /* ── Alert ── */
-    .alert {
-      border-radius: 12px;
-      border: none;
-      font-size: .875rem;
-    }
+    .alert { border-radius: 12px; border: none; font-size: .875rem; }
 
     .page-footer {
       text-align: center;
       margin-top: 1.5rem;
-      color: rgba(255, 255, 255, .5);
+      color: rgba(255,255,255,.5);
       font-size: .78rem;
+      position: relative;
+      z-index: 1;
     }
 
-    /* ── Step indicator ── */
-    .step-bar {
-      display: flex;
-      gap: 0;
-      margin-bottom: 1.5rem;
-      border-radius: 12px;
+    /* ── Modal de detalhes do serviço ── */
+    #detalhesServicoModal .modal-content {
+      border-radius: 20px;
+      border: none;
       overflow: hidden;
-      border: 1.5px solid #d1fae5;
     }
 
-    .step-item {
-      flex: 1;
-      padding: .55rem .5rem;
-      text-align: center;
-      font-size: .72rem;
-      font-weight: 600;
-      background: #f1f8f5;
-      color: #6b7280;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: .3rem;
-    }
-
-    .step-item.active {
-      background: #0c4a34;
+    #detalhesServicoModal .modal-header {
+      background: var(--green-mid);
       color: #fff;
+      border: none;
+      padding: 1.25rem 1.5rem;
     }
 
-    .step-item:not(:last-child) {
-      border-right: 1.5px solid #d1fae5;
+    #detalhesServicoModal .modal-body {
+      font-size: .95rem;
+      color: #4b5563;
+      line-height: 1.7;
+      padding: 1.5rem;
+    }
+
+    /* ── Modal de resumo do pedido ── */
+    #resumoPedidoModal .modal-content {
+      border-radius: 20px;
+      border: none;
+      overflow: hidden;
+    }
+
+    #resumoPedidoModal .modal-header {
+      background: linear-gradient(135deg, var(--green-mid), #16a34a);
+      color: #fff;
+      border: none;
+      padding: 1.25rem 1.5rem;
+    }
+
+    .resumo-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding: .7rem 0;
+      border-bottom: 1px solid #f3f4f6;
+      gap: 1rem;
+    }
+
+    .resumo-item:last-child { border-bottom: none; }
+
+    .resumo-item-label {
+      font-size: .78rem;
+      font-weight: 600;
+      color: var(--gray-muted);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      flex-shrink: 0;
+    }
+
+    .resumo-item-valor {
+      font-size: .9rem;
+      font-weight: 600;
+      color: #1f2937;
+      text-align: right;
+    }
+
+    .resumo-valor-destaque {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--orange);
+    }
+
+    .btn-confirmar {
+      background: var(--green-mid);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      padding: .75rem 1.5rem;
+      font-weight: 700;
+      font-size: .95rem;
+      transition: background .2s, transform .15s;
+    }
+
+    .btn-confirmar:hover {
+      background: #0a3d2a;
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    .btn-editar {
+      border-radius: 12px;
+      padding: .75rem 1.25rem;
+      font-weight: 600;
+      font-size: .95rem;
+    }
+
+    /* ── Responsividade Mobile ── */
+    @media (max-width: 400px) {
+      .chip-grid { grid-template-columns: 1fr; }
+      .periodo-grid { grid-template-columns: repeat(2, 1fr); }
+      .form-card { padding: 1.75rem 1.25rem; }
+      .page-header h1 { font-size: 1.4rem; }
+      .logo-wrapper img { height: 72px; }
+    }
+
+    @media (max-width: 576px) {
+      body { padding: 1.5rem .75rem 3rem; }
+      .trust-bar { gap: .75rem; }
     }
   </style>
 </head>
 
 <body>
 
-  <!-- ── Header ── -->
   <div class="page-header">
-    <img src="/static/logo03.png" alt="Maria's Home Service"
-      style="height: 90px; width: auto; border-radius: 12px; border: 2px solid #ff6b00; box-shadow: 0 4px 6px rgba(0,0,0,0.15); margin-bottom: 15px;">
+    <div class="logo-wrapper">
+      <img src="/static/logo03.png" alt="Maria's Home Service">
+    </div>
+    <h1>Maria's Home Service</h1>
     <p>Solicite seu serviço em menos de 2 minutos. Entraremos em contato pelo WhatsApp!</p>
   </div>
 
-  <!-- ── Formulário ── -->
   <div class="form-card">
 
-    <!-- Barra de etapas visual -->
-    <div class="step-bar">
-      <div class="step-item active"><i class="bi bi-person-fill"></i> Seus Dados</div>
-      <div class="step-item active"><i class="bi bi-calendar-check-fill"></i> O Serviço</div>
-      <div class="step-item"><i class="bi bi-check-circle-fill"></i> Confirmação</div>
+    <div class="step-bar" role="navigation" aria-label="Etapas do formulário">
+      <div class="step-item active"><i class="bi bi-person-fill" aria-hidden="true"></i> Seus Dados</div>
+      <div class="step-item active"><i class="bi bi-calendar-check-fill" aria-hidden="true"></i> O Serviço</div>
+      <div class="step-item active"><i class="bi bi-credit-card-fill" aria-hidden="true"></i> Pagamento</div>
     </div>
 
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
     {% for category, message in messages %}
-    <div class="alert alert-{{ category }} alert-dismissible fade show mb-4">
+    <div class="alert alert-{{ category }} alert-dismissible fade show mb-4" role="alert">
       {{ message }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
     </div>
     {% endfor %}
     {% endif %}
     {% endwith %}
 
-    <form method="post" action="{{ url_for('agendamento_cliente_publico') }}" novalidate>
+    <form id="formAgendamento" method="post" action="{{ url_for('agendamento_cliente_publico') }}" novalidate>
 
-      <!-- ── Seção 1: Dados Pessoais ── -->
-      <div class="section-title"><i class="bi bi-person-fill"></i> Dados Pessoais</div>
+      <!-- ── Dados Pessoais ── -->
+      <div class="section-title"><i class="bi bi-person-fill" aria-hidden="true"></i> Dados Pessoais</div>
 
       <div class="mb-3">
-        <label for="nome" class="form-label">Nome Completo <span class="text-danger">*</span></label>
-        <input type="text" id="nome" name="nome" class="form-control" placeholder="Seu nome completo" required
-          autocomplete="name">
+        <label for="nome" class="form-label">Nome Completo <span class="text-danger" aria-hidden="true">*</span></label>
+        <input type="text" id="nome" name="nome" class="form-control" placeholder="Seu nome completo"
+               required aria-required="true" autocomplete="name">
+        <div class="invalid-feedback" role="alert">Por favor, informe seu nome completo.</div>
       </div>
 
       <div class="row g-3 mb-3">
         <div class="col-sm-6">
-          <label for="telefone" class="form-label">WhatsApp <span class="text-danger">*</span></label>
-          <input type="tel" id="telefone" name="telefone" class="form-control" placeholder="(98) 99999-9999" required
-            autocomplete="tel">
+          <label for="telefone" class="form-label">WhatsApp <span class="text-danger" aria-hidden="true">*</span></label>
+          <input type="tel" id="telefone" name="telefone" class="form-control" placeholder="(98) 99999-9999"
+                 required aria-required="true" autocomplete="tel" inputmode="tel">
+          <div class="invalid-feedback" role="alert">Informe um número de WhatsApp válido.</div>
         </div>
         <div class="col-sm-6">
           <label for="email" class="form-label">E-mail</label>
-          <input type="email" id="email" name="email" class="form-control" placeholder="seu@email.com"
-            autocomplete="email">
+          <input type="email" id="email" name="email" class="form-control" placeholder="seu@email.com" autocomplete="email">
+          <div class="invalid-feedback" role="alert">Informe um e-mail válido.</div>
         </div>
       </div>
 
       <div class="mb-3">
         <label for="endereco" class="form-label">Endereço Completo</label>
-        <input type="text" id="endereco" name="endereco" class="form-control" placeholder="Rua, número, complemento"
-          autocomplete="street-address">
+        <input type="text" id="endereco" name="endereco" class="form-control"
+               placeholder="Rua, número, complemento" autocomplete="street-address">
       </div>
 
       <div class="mb-1">
@@ -439,52 +718,93 @@
         <input type="text" id="bairro" name="bairro" class="form-control" placeholder="Ex: Cohab">
       </div>
 
-      <!-- ── Seção 2: Detalhes do Serviço ── -->
-      <div class="section-title mt-4"><i class="bi bi-stars"></i> Detalhes do Serviço</div>
+      <!-- ── Detalhes do Serviço ── -->
+      <div class="section-title mt-4"><i class="bi bi-stars" aria-hidden="true"></i> Detalhes do Serviço</div>
 
-      <!-- Serviço solicitado -->
-      <p class="text-muted mb-2" style="font-size:.82rem;">Qual serviço você precisa? <span class="text-danger">*</span>
+      <p class="text-muted mb-2" style="font-size:.82rem;">
+        Qual serviço você precisa? <span class="text-danger" aria-hidden="true">*</span>
       </p>
-      <div class="chip-grid mb-3">
+
+      <div class="chip-grid mb-3" role="group" aria-label="Selecione o serviço">
         {% for s in servicos_opcoes %}
-        <label class="chip-label">
-          <input type="radio" name="servico" value="{{ s }}" required>
-          {% if s == 'Diarista' %}✨{% elif s == 'Passadeira' %}👔{% elif s == 'Babá' %}👶{% elif s == 'Cozinheira'
-          %}🍳{% endif %}
-          {{ s }}
+        <label class="chip-label" id="label-{{ s }}">
+          <input type="radio" name="servico" value="{{ s }}" required aria-required="true">
+          <span>
+            {% if s == 'Diarista' %}✨{% elif s == 'Passadeira' %}👔{% elif s == 'Babá' %}👶{% elif s == 'Cozinheira' %}🍳{% endif %}
+            {{ s }}
+          </span>
+          <span class="info-link" onclick="abrirDetalhes('{{ s }}', event)" role="button" tabindex="0"
+                aria-label="Ver detalhes do serviço {{ s }}">
+            <i class="bi bi-info-circle" aria-hidden="true"></i> Ver o que inclui
+          </span>
         </label>
         {% endfor %}
       </div>
 
-      <!-- Seleção de quartos (visível apenas quando Diarista é selecionado) -->
       <div id="quartos-wrapper" class="mb-3">
-        <label for="quartos" class="form-label">Quantidade de Quartos <span class="text-danger">*</span></label>
-        <select id="quartos" name="quartos" class="form-select">
+        <label for="quartos" class="form-label">Quantos quartos tem no seu imóvel? <span class="text-danger" aria-hidden="true">*</span></label>
+        <select id="quartos" name="quartos" class="form-select" aria-required="true">
           <option value="" disabled selected>Selecione a quantidade de quartos</option>
           <option value="1">🛏️ 1 Quarto</option>
           <option value="2">🛏️ 2 Quartos</option>
           <option value="3">🛏️ 3 Quartos</option>
           <option value="4">🛏️ 4 Quartos</option>
         </select>
+        <div class="invalid-feedback" role="alert">Selecione a quantidade de quartos.</div>
       </div>
 
-      <!-- Período -->
-      <p class="text-muted mb-2" style="font-size:.82rem;">Período de preferência <span class="text-danger">*</span></p>
-      <div class="periodo-grid mb-2">
+      <p class="text-muted mb-2" style="font-size:.82rem;">
+        Período de preferência <span class="text-danger" aria-hidden="true">*</span>
+      </p>
+      <div class="periodo-grid mb-2" role="group" aria-label="Selecione o período">
         {% for p in periodos_opcoes %}
         <label class="periodo-label">
-          <input type="radio" name="periodo" value="{{ p }}" required>
+          <input type="radio" name="periodo" value="{{ p }}" required aria-required="true">
           {% if 'Manh' in p %}🌅 Manhã{% elif 'Tarde' in p %}☀️ Tarde{% else %}⏰ Integral{% endif %}
         </label>
         {% endfor %}
       </div>
-      <!-- Legenda informativa sobre os períodos -->
       <p class="text-muted mb-3" style="font-size:.77rem; line-height:1.4;">
         *Período integral: 08h às 16h (8h trabalhadas). Manhã: 07h às 13h · Tarde: 13h às 19h (6h trabalhadas).
       </p>
 
+      <div class="mb-3">
+        <label for="data" class="form-label">Data Desejada <span class="text-danger" aria-hidden="true">*</span></label>
+        <input type="date" id="data" name="data" class="form-control" required aria-required="true">
+        <div class="invalid-feedback" role="alert">Selecione uma data válida.</div>
+        <div id="aviso-fds" role="alert">
+          <i class="bi bi-exclamation-triangle-fill text-warning" aria-hidden="true"></i>
+          Final de semana selecionado — verificaremos a disponibilidade para este dia.
+        </div>
+      </div>
+
+      <div class="mb-1">
+        <label for="observacoes" class="form-label">Observações / Instruções Especiais</label>
+        <textarea id="observacoes" name="observacoes" class="form-control"
+                  placeholder="Ex: Tenho pets, moro em casa, apartamento no 4º andar..."></textarea>
+      </div>
+
+      <!-- ── Pagamento ── -->
+      <div class="section-title mt-4"><i class="bi bi-credit-card-fill" aria-hidden="true"></i> Forma de Pagamento</div>
+      <p class="text-muted mb-2" style="font-size:.82rem;">
+        Escolha como deseja pagar de forma segura <span class="text-danger" aria-hidden="true">*</span>
+      </p>
+
+      <div class="chip-grid mb-4" role="group" aria-label="Selecione a forma de pagamento">
+        <label class="chip-label pagamento-label">
+          <input type="radio" name="forma_pagamento" value="Pix" required aria-required="true">
+          <span><i class="bi bi-qr-code-scan text-success fs-5" aria-hidden="true"></i> Pix</span>
+          <small class="text-muted" style="font-size:.7rem;">Aprovação imediata</small>
+        </label>
+        <label class="chip-label pagamento-label">
+          <input type="radio" name="forma_pagamento" value="Cartão de Crédito" required aria-required="true">
+          <span><i class="bi bi-credit-card text-primary fs-5" aria-hidden="true"></i> Cartão de Crédito</span>
+          <small class="text-muted" style="font-size:.7rem;">Até 3x sem juros</small>
+        </label>
+      </div>
+
       <!-- Card de orçamento em tempo real -->
-      <div id="orcamento-card" class="orcamento-card">
+      <div id="orcamento-card" class="orcamento-card" aria-live="polite" aria-label="Estimativa de valor do serviço">
         <div>
           <p class="orcamento-label">💰 Valor do Serviço</p>
           <div id="orcamento-valor" class="orcamento-valor">R$ 0,00</div>
@@ -492,32 +812,22 @@
         <span class="orcamento-badge">✅ Estimativa</span>
       </div>
 
-      <!-- Campo hidden que envia o valor calculado ao servidor -->
       <input type="hidden" id="valor_total" name="valor_total" value="0">
 
-      <!-- Data -->
-      <div class="mb-3">
-        <label for="data" class="form-label">Data Desejada <span class="text-danger">*</span></label>
-        <input type="date" id="data" name="data" class="form-control" required>
-      </div>
-
-      <!-- Observações -->
-      <div class="mb-1">
-        <label for="observacoes" class="form-label">Observações / Instruções Especiais</label>
-        <textarea id="observacoes" name="observacoes" class="form-control"
-          placeholder="Ex: Tenho pets, moro em casa, apartamento no 4º andar..."></textarea>
-      </div>
-
-      <!-- Submit -->
-      <button type="submit" class="btn btn-submit">
-        <i class="bi bi-send-fill me-2"></i>Solicitar Agendamento
+      <button type="button" id="btnAbrirResumo" class="btn btn-submit" disabled aria-disabled="true">
+        <span class="btn-text">
+          <i class="bi bi-shield-lock-fill me-2" aria-hidden="true"></i>Ir para Pagamento Seguro
+        </span>
+        <span class="btn-spinner">
+          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+          Processando...
+        </span>
       </button>
 
-      <!-- Trust bar -->
       <div class="trust-bar">
-        <span class="trust-item"><i class="bi bi-shield-check-fill"></i> Dados protegidos</span>
-        <span class="trust-item"><i class="bi bi-whatsapp"></i> Confirmação via WhatsApp</span>
-        <span class="trust-item"><i class="bi bi-clock-fill"></i> Resposta rápida</span>
+        <span class="trust-item"><i class="bi bi-shield-check-fill" aria-hidden="true"></i> Ambiente Criptografado</span>
+        <span class="trust-item"><i class="bi bi-whatsapp" aria-hidden="true"></i> Suporte via WhatsApp</span>
+        <span class="trust-item"><i class="bi bi-patch-check-fill" aria-hidden="true"></i> Satisfação Garantida</span>
       </div>
 
     </form>
@@ -525,104 +835,342 @@
 
   <div class="page-footer">Maria's Home Service · Conectando lares a profissionais de confiança</div>
 
+  <!-- ── Modal: Detalhes do Serviço ── -->
+  <div class="modal fade" id="detalhesServicoModal" tabindex="-1" aria-labelledby="modalServicoTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="modalServicoTitulo">Detalhes do Serviço</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body" id="modalServicoCorpo"></div>
+        <div class="modal-footer" style="border-top:1px solid #f3f4f6;">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                  style="border-radius:10px;background:#6b7280;">Fechar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Modal: Resumo do Pedido ── -->
+  <div class="modal fade" id="resumoPedidoModal" tabindex="-1" aria-labelledby="resumoModalTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="resumoModalTitulo">
+            <i class="bi bi-clipboard-check-fill me-2" aria-hidden="true"></i>Confirme seu Pedido
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body" style="padding:1.5rem;">
+          <p style="font-size:.82rem;color:#6b7280;margin-bottom:1rem;">
+            Revise os detalhes antes de confirmar. Nossa equipe entrará em contato pelo WhatsApp.
+          </p>
+          <div id="resumoConteudo"></div>
+        </div>
+        <div class="modal-footer" style="border-top:1px solid #f3f4f6;gap:.75rem;">
+          <button type="button" class="btn btn-outline-secondary btn-editar" data-bs-dismiss="modal">
+            <i class="bi bi-pencil-fill me-1" aria-hidden="true"></i> Editar
+          </button>
+          <button type="button" id="btnConfirmarPedido" class="btn btn-confirmar">
+            <i class="bi bi-send-fill me-1" aria-hidden="true"></i> Confirmar e Enviar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
-    // ── Tabela de preços Diarista (cruzamento: período × quartos) ──
-    const PRECOS_DIARISTA = {
-      integral: { '1': 150, '2': 200, '3': 250, '4': 300 },
-      turno: { '1': 100, '2': 150, '3': 200, '4': 250 }  // manhã ou tarde
+    // ── Textos informativos de cada serviço ──
+    const DETALHES_SERVICOS = {
+      'Diarista': '<strong>O que está incluso:</strong><br>• Limpeza geral de salas, quartos, banheiros e cozinha.<br>• Retirada de lixos e organização básica de superfícies.<br>• Limpeza de pisos, poeira de móveis e janelas internas.<br><br><em>*Não inclui limpeza pesada pós-obra ou lavagem de tapetes/cortinas.</em>',
+      'Passadeira': '<strong>O que está incluso:</strong><br>• Passadoria de roupas de uso diário (camisas, calças, camisetas).<br>• Organização de peças prontas em cabides ou dobradas.<br>• Cuidados com tecidos delicados conforme instruções.<br><br><em>*É necessário que o cliente disponibilize ferro de passar e tábua adequados.</em>',
+      'Babá': '<strong>O que está incluso:</strong><br>• Cuidados gerais e atenção contínua à criança no período solicitado.<br>• Auxílio na alimentação, higiene pessoal e troca de roupas.<br>• Atividades lúdicas, brincadeiras e acompanhamento seguro.<br><br><em>*Para contratos pontuais ou recorrentes de suporte aos pais.</em>',
+      'Cozinheira': '<strong>O que está incluso:</strong><br>• Preparo de refeições diárias (almoço e/ou jantar conforme cardápio combinado).<br>• Higienização e organização básica da cozinha após o preparo.<br>• Armazenamento correto dos alimentos na geladeira.<br><br><em>*Ingredientes e insumos são de responsabilidade do contratante.</em>'
     };
 
-    const quartosWrapper = document.getElementById('quartos-wrapper');
-    const quartosSelect = document.getElementById('quartos');
-    const orcamentoCard = document.getElementById('orcamento-card');
-    const orcamentoValor = document.getElementById('orcamento-valor');
-    const valorTotalInput = document.getElementById('valor_total');
+    // ── Tabela de preços ──
+    const PRECOS_SERVICOS = {
+      'Diarista': {
+        integral: { '1': 150, '2': 200, '3': 250, '4': 300 },
+        turno:    { '1': 120, '2': 150, '3': 200, '4': 250 }
+      },
+      'Passadeira': { valorFixo: 140 },
+      'Babá':       { valorFixo: 160 },
+      'Cozinheira': { valorFixo: 180 }
+    };
 
-    // Formata número para BRL
+    // ── Elementos DOM ──
+    const quartosWrapper   = document.getElementById('quartos-wrapper');
+    const quartosSelect    = document.getElementById('quartos');
+    const orcamentoCard    = document.getElementById('orcamento-card');
+    const orcamentoValor   = document.getElementById('orcamento-valor');
+    const valorTotalInput  = document.getElementById('valor_total');
+    const btnAbrirResumo   = document.getElementById('btnAbrirResumo');
+    const btnConfirmar     = document.getElementById('btnConfirmarPedido');
+    const form             = document.getElementById('formAgendamento');
+    const avisoFds         = document.getElementById('aviso-fds');
+
+    const modalDetalhes  = new bootstrap.Modal(document.getElementById('detalhesServicoModal'));
+    const modalResumo    = new bootstrap.Modal(document.getElementById('resumoPedidoModal'));
+
+    // ── Formatadores ──
     function formatarBRL(valor) {
       return 'R$ ' + valor.toFixed(2).replace('.', ',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     }
 
-    // Retorna a chave de faixa de preço conforme o período selecionado
     function getTipoPeriodo() {
       const p = document.querySelector('input[name="periodo"]:checked');
       if (!p) return null;
-      // "Integral" contém a palavra Integral; Manhã e Tarde são turnos
       return p.value.toLowerCase().includes('integral') ? 'integral' : 'turno';
     }
 
-    // Atualiza o card e o hidden com o preço calculado (cruzamento período × quartos)
+    // ── Orçamento inteligente ──
     function atualizarOrcamento() {
-      const servicoSelecionado = document.querySelector('input[name="servico"]:checked');
-
-      // Só mostra orçamento para Diarista
-      if (!servicoSelecionado || servicoSelecionado.value !== 'Diarista') {
+      const servicoEl = document.querySelector('input[name="servico"]:checked');
+      if (!servicoEl) {
         orcamentoCard.classList.remove('show');
         valorTotalInput.value = '0';
         return;
       }
 
-      const quartos = quartosSelect.value;
-      const tipoPeriodo = getTipoPeriodo();
+      const nome = servicoEl.value;
+      let preco = 0;
 
-      // Precisa de ambos: quartos e período
-      if (!quartos || !tipoPeriodo) {
-        orcamentoCard.classList.remove('show');
-        valorTotalInput.value = '0';
-        return;
+      if (nome === 'Diarista') {
+        const quartos = quartosSelect.value;
+        const tipo    = getTipoPeriodo();
+        if (!quartos || !tipo) {
+          orcamentoCard.classList.remove('show');
+          valorTotalInput.value = '0';
+          return;
+        }
+        preco = PRECOS_SERVICOS['Diarista'][tipo][quartos];
+      } else {
+        preco = PRECOS_SERVICOS[nome]?.valorFixo || 0;
       }
 
-      const preco = PRECOS_DIARISTA[tipoPeriodo][quartos];
-      orcamentoValor.textContent = formatarBRL(preco);
-      valorTotalInput.value = preco.toFixed(2);
-      orcamentoCard.classList.add('show');
+      if (preco > 0) {
+        const wasShown = orcamentoCard.classList.contains('show');
+        orcamentoValor.textContent = formatarBRL(preco);
+        valorTotalInput.value = preco.toFixed(2);
+        orcamentoCard.classList.add('show');
+        if (wasShown) {
+          // Pulse ao atualizar o valor
+          orcamentoCard.classList.remove('pulse');
+          void orcamentoCard.offsetWidth; // reflow
+          orcamentoCard.classList.add('pulse');
+        }
+      }
     }
 
-    // Radio chips — serviço
-    document.querySelectorAll('.chip-label').forEach(label => {
-      label.querySelector('input').addEventListener('change', function () {
-        document.querySelectorAll('.chip-label').forEach(l => l.classList.remove('selected'));
+    // ── Validação em tempo real ──
+    function validarCampo(campo) {
+      if (!campo.required && campo.value.trim() === '') {
+        campo.classList.remove('is-valid', 'is-invalid');
+        return true;
+      }
+      const valido = campo.checkValidity() && campo.value.trim() !== '';
+      campo.classList.toggle('is-valid', valido);
+      campo.classList.toggle('is-invalid', !valido);
+      return valido;
+    }
+
+    function validarFormularioCompleto() {
+      const nome     = document.getElementById('nome').value.trim();
+      const tel      = document.getElementById('telefone').value.replace(/\D/g,'');
+      const servico  = document.querySelector('input[name="servico"]:checked');
+      const periodo  = document.querySelector('input[name="periodo"]:checked');
+      const data     = document.getElementById('data').value;
+      const pagto    = document.querySelector('input[name="forma_pagamento"]:checked');
+      const isDiarista = servico?.value === 'Diarista';
+      const quartos  = quartosSelect.value;
+
+      const ok = nome.length > 2
+               && tel.length >= 10
+               && servico
+               && periodo
+               && data
+               && pagto
+               && (!isDiarista || quartos);
+
+      btnAbrirResumo.disabled = !ok;
+      btnAbrirResumo.setAttribute('aria-disabled', String(!ok));
+      return ok;
+    }
+
+    // ── Chips de serviço ──
+    document.querySelectorAll('.chip-grid:first-of-type .chip-label').forEach(label => {
+      const input = label.querySelector('input[type="radio"]');
+      input.addEventListener('change', function () {
+        document.querySelectorAll('.chip-grid:first-of-type .chip-label').forEach(l => l.classList.remove('selected'));
         if (this.checked) label.classList.add('selected');
 
-        // Mostra/esconde campo de quartos
         if (this.value === 'Diarista') {
           quartosWrapper.classList.add('show');
         } else {
           quartosWrapper.classList.remove('show');
           quartosSelect.value = '';
-          orcamentoCard.classList.remove('show');
-          valorTotalInput.value = '0';
         }
         atualizarOrcamento();
+        validarFormularioCompleto();
       });
     });
 
-    // Atualiza preço quando troca quantidade de quartos
-    quartosSelect.addEventListener('change', atualizarOrcamento);
+    // ── Chips de pagamento ──
+    document.querySelectorAll('.pagamento-label').forEach(label => {
+      label.querySelector('input').addEventListener('change', function () {
+        document.querySelectorAll('.pagamento-label').forEach(l => l.classList.remove('selected'));
+        if (this.checked) label.classList.add('selected');
+        validarFormularioCompleto();
+      });
+    });
 
-    // Radio chips — período: atualiza visual E recalcula orçamento
+    // ── Período ──
     document.querySelectorAll('.periodo-label').forEach(label => {
       label.querySelector('input').addEventListener('change', function () {
         document.querySelectorAll('.periodo-label').forEach(l => l.classList.remove('selected'));
         if (this.checked) label.classList.add('selected');
-        atualizarOrcamento(); // recalcula ao trocar período
+        atualizarOrcamento();
+        validarFormularioCompleto();
       });
     });
 
-    // Data mínima = hoje
-    const today = new Date().toISOString().split('T')[0];
-    document.getElementById('data').min = today;
-    document.getElementById('data').value = today;
+    // ── Quartos ──
+    quartosSelect.addEventListener('change', () => {
+      atualizarOrcamento();
+      validarFormularioCompleto();
+    });
 
-    // Máscara telefone
+    // ── Data ──
+    const dataInput = document.getElementById('data');
+    const today = new Date().toISOString().split('T')[0];
+    dataInput.min = today;
+    dataInput.value = today;
+
+    dataInput.addEventListener('change', function () {
+      validarCampo(this);
+      const d = new Date(this.value + 'T12:00:00');
+      const dow = d.getDay(); // 0=Dom, 6=Sáb
+      avisoFds.classList.toggle('show', dow === 0 || dow === 6);
+      validarFormularioCompleto();
+    });
+
+    // ── Validação nos campos de texto ──
+    ['nome', 'telefone', 'email'].forEach(id => {
+      const el = document.getElementById(id);
+      el.addEventListener('blur',  () => validarCampo(el));
+      el.addEventListener('input', () => {
+        if (el.classList.contains('is-invalid')) validarCampo(el);
+        validarFormularioCompleto();
+      });
+    });
+
+    // ── Máscara de telefone ──
     document.getElementById('telefone').addEventListener('input', function () {
       let v = this.value.replace(/\D/g, '').slice(0, 11);
-      if (v.length >= 7) v = '(' + v.slice(0, 2) + ') ' + v.slice(2, 7) + '-' + v.slice(7);
-      else if (v.length >= 3) v = '(' + v.slice(0, 2) + ') ' + v.slice(2);
-      else if (v.length > 0) v = '(' + v;
+      if (v.length >= 7)      v = '(' + v.slice(0,2) + ') ' + v.slice(2,7) + '-' + v.slice(7);
+      else if (v.length >= 3) v = '(' + v.slice(0,2) + ') ' + v.slice(2);
+      else if (v.length > 0)  v = '(' + v;
       this.value = v;
     });
+
+    // ── Modal de detalhes ──
+    function abrirDetalhes(servico, event) {
+      event.stopPropagation();
+      document.getElementById('modalServicoTitulo').textContent = `Serviço de ${servico}`;
+      document.getElementById('modalServicoCorpo').innerHTML = DETALHES_SERVICOS[servico] || 'Informações detalhadas sob consulta.';
+      modalDetalhes.show();
+    }
+
+    // ── Acessibilidade: info-link via teclado ──
+    document.querySelectorAll('.info-link').forEach(el => {
+      el.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          const servico = this.closest('.chip-label').querySelector('input').value;
+          abrirDetalhes(servico, e);
+        }
+      });
+    });
+
+    // ── Botão abrir resumo ──
+    btnAbrirResumo.addEventListener('click', function () {
+      if (!validarFormularioCompleto()) return;
+      preencherResumo();
+      modalResumo.show();
+    });
+
+    function preencherResumo() {
+      const nome     = document.getElementById('nome').value.trim();
+      const tel      = document.getElementById('telefone').value.trim();
+      const email    = document.getElementById('email').value.trim();
+      const endereco = document.getElementById('endereco').value.trim();
+      const bairro   = document.getElementById('bairro').value.trim();
+      const servico  = document.querySelector('input[name="servico"]:checked')?.value || '—';
+      const periodo  = document.querySelector('input[name="periodo"]:checked')?.value || '—';
+      const data     = document.getElementById('data').value;
+      const pagto    = document.querySelector('input[name="forma_pagamento"]:checked')?.value || '—';
+      const valor    = valorTotalInput.value;
+
+      // Formata data para leitura humana (dd/mm/aaaa)
+      let dataFormatada = '—';
+      if (data) {
+        const [y, m, d] = data.split('-');
+        dataFormatada = `${d}/${m}/${y}`;
+      }
+
+      const enderecoCompleto = [endereco, bairro].filter(Boolean).join(', ') || '—';
+      const valorNum = parseFloat(valor) || 0;
+
+      const linhas = [
+        { label: 'Nome',        valor: nome || '—' },
+        { label: 'WhatsApp',    valor: tel || '—' },
+        { label: 'E-mail',      valor: email || '—' },
+        { label: 'Endereço',    valor: enderecoCompleto },
+        { label: 'Serviço',     valor: servico },
+        { label: 'Data',        valor: dataFormatada },
+        { label: 'Período',     valor: periodo },
+        { label: 'Pagamento',   valor: pagto },
+      ];
+
+      if (servico === 'Diarista') {
+        const q = quartosSelect.value;
+        if (q) linhas.splice(5, 0, { label: 'Quartos', valor: `${q} ${q === '1' ? 'quarto' : 'quartos'}` });
+      }
+
+      const html = linhas.map(l => `
+        <div class="resumo-item">
+          <span class="resumo-item-label">${l.label}</span>
+          <span class="resumo-item-valor">${l.valor}</span>
+        </div>
+      `).join('');
+
+      const valorHtml = valorNum > 0
+        ? `<div class="resumo-item">
+             <span class="resumo-item-label">💰 Estimativa</span>
+             <span class="resumo-valor-destaque">${formatarBRL(valorNum)}</span>
+           </div>`
+        : '';
+
+      document.getElementById('resumoConteudo').innerHTML = html + valorHtml;
+    }
+
+    // ── Confirmar e enviar ──
+    btnConfirmar.addEventListener('click', function () {
+      modalResumo.hide();
+
+      // Loading state no botão
+      btnAbrirResumo.classList.add('loading');
+      btnAbrirResumo.disabled = true;
+
+      // Pequeno delay para o modal fechar antes de submeter
+      setTimeout(() => form.submit(), 350);
+    });
+
+    // ── Validação inicial (ao carregar) ──
+    validarFormularioCompleto();
   </script>
 </body>
 
