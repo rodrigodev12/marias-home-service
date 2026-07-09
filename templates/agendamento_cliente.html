@@ -636,6 +636,47 @@
       font-size: .95rem;
     }
 
+    /* ── CEP ── */
+    .cep-wrapper {
+      position: relative;
+    }
+
+    .cep-spinner {
+      position: absolute;
+      right: .85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      display: none;
+      color: var(--green-mid);
+      font-size: .85rem;
+    }
+
+    .cep-spinner.show { display: block; animation: spin .7s linear infinite; }
+
+    @keyframes spin { to { transform: translateY(-50%) rotate(360deg); } }
+
+    .cep-ok {
+      position: absolute;
+      right: .85rem;
+      top: 50%;
+      transform: translateY(-50%);
+      display: none;
+      color: #16a34a;
+      font-size: 1rem;
+    }
+
+    .cep-ok.show { display: block; }
+
+    .cep-erro {
+      font-size: .78rem;
+      color: #dc2626;
+      margin-top: .3rem;
+      display: none;
+      font-weight: 500;
+    }
+
+    .cep-erro.show { display: block; }
+
     /* ── Responsividade Mobile ── */
     @media (max-width: 400px) {
       .chip-grid { grid-template-columns: 1fr; }
@@ -707,8 +748,27 @@
         </div>
       </div>
 
+      <!-- CEP com auto-preenchimento -->
+      <div class="row g-3 mb-3">
+        <div class="col-sm-4">
+          <label for="cep" class="form-label">CEP</label>
+          <div class="cep-wrapper">
+            <input type="text" id="cep" name="cep" class="form-control" placeholder="00000-000"
+                   inputmode="numeric" maxlength="9" autocomplete="postal-code">
+            <span class="cep-spinner" id="cepSpinner"><i class="bi bi-arrow-repeat"></i></span>
+            <i class="bi bi-check-circle-fill cep-ok" id="cepOk"></i>
+          </div>
+          <div class="cep-erro" id="cepErro">CEP não encontrado.</div>
+        </div>
+        <div class="col-sm-8">
+          <label for="cidade" class="form-label">Cidade / UF</label>
+          <input type="text" id="cidade" name="cidade" class="form-control" placeholder="Preenchido pelo CEP" readonly
+                 style="background:#f9fafb;color:var(--gray-text);">
+        </div>
+      </div>
+
       <div class="mb-3">
-        <label for="endereco" class="form-label">Endereço Completo</label>
+        <label for="endereco" class="form-label">Endereço</label>
         <input type="text" id="endereco" name="endereco" class="form-control"
                placeholder="Rua, número, complemento" autocomplete="street-address">
       </div>
@@ -725,7 +785,7 @@
         Qual serviço você precisa? <span class="text-danger" aria-hidden="true">*</span>
       </p>
 
-      <div class="chip-grid mb-3" role="group" aria-label="Selecione o serviço">
+      <div class="chip-grid mb-3" id="chip-servicos" role="group" aria-label="Selecione o serviço">
         {% for s in servicos_opcoes %}
         <label class="chip-label" id="label-{{ s }}">
           <input type="radio" name="servico" value="{{ s }}" required aria-required="true">
@@ -1001,10 +1061,10 @@
     }
 
     // ── Chips de serviço ──
-    document.querySelectorAll('.chip-grid:first-of-type .chip-label').forEach(label => {
+    document.querySelectorAll('#chip-servicos .chip-label').forEach(label => {
       const input = label.querySelector('input[type="radio"]');
       input.addEventListener('change', function () {
-        document.querySelectorAll('.chip-grid:first-of-type .chip-label').forEach(l => l.classList.remove('selected'));
+        document.querySelectorAll('#chip-servicos .chip-label').forEach(l => l.classList.remove('selected'));
         if (this.checked) label.classList.add('selected');
 
         if (this.value === 'Diarista') {
@@ -1017,6 +1077,67 @@
         validarFormularioCompleto();
       });
     });
+
+    // ── CEP Auto-preenchimento (ViaCEP) ──
+    const cepInput    = document.getElementById('cep');
+    const cepSpinner  = document.getElementById('cepSpinner');
+    const cepOk       = document.getElementById('cepOk');
+    const cepErro     = document.getElementById('cepErro');
+    const endInput    = document.getElementById('endereco');
+    const bairroInput = document.getElementById('bairro');
+    const cidadeInput = document.getElementById('cidade');
+
+    // Máscara CEP
+    cepInput.addEventListener('input', function () {
+      let v = this.value.replace(/\D/g, '').slice(0, 8);
+      if (v.length > 5) v = v.slice(0, 5) + '-' + v.slice(5);
+      this.value = v;
+
+      // Reseta feedbacks
+      cepOk.classList.remove('show');
+      cepErro.classList.remove('show');
+      cepInput.classList.remove('is-valid', 'is-invalid');
+
+      if (v.replace(/\D/g,'').length === 8) {
+        buscarCEP(v.replace(/\D/g,''));
+      }
+    });
+
+    async function buscarCEP(cep) {
+      cepSpinner.classList.add('show');
+      cepOk.classList.remove('show');
+      cepErro.classList.remove('show');
+      cepInput.classList.remove('is-valid', 'is-invalid');
+
+      try {
+        const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        const data = await res.json();
+
+        if (data.erro) throw new Error('CEP não encontrado');
+
+        // Preenche os campos
+        endInput.value    = data.logradouro  || '';
+        bairroInput.value = data.bairro      || '';
+        cidadeInput.value = `${data.localidade} / ${data.uf}`;
+
+        // Feedback visual
+        cepInput.classList.add('is-valid');
+        cepOk.classList.add('show');
+
+        // Foca no campo de endereço para o usuário adicionar o número
+        setTimeout(() => endInput.focus(), 100);
+
+      } catch (e) {
+        cepInput.classList.add('is-invalid');
+        cepErro.classList.add('show');
+        // Limpa campos preenchidos anteriormente
+        endInput.value    = '';
+        bairroInput.value = '';
+        cidadeInput.value = '';
+      } finally {
+        cepSpinner.classList.remove('show');
+      }
+    }
 
     // ── Chips de pagamento ──
     document.querySelectorAll('.pagamento-label').forEach(label => {
