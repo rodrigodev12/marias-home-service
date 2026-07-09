@@ -658,11 +658,16 @@ PERIODOS_OPCOES = ['Manhã (07h às 13h)', 'Tarde (13h às 19h)', 'Integral (08h
 @app.route('/agendamento_cliente', methods=['GET', 'POST'])
 def agendamento_cliente_publico():
     if request.method == 'POST':
-        nome     = request.form.get('nome', '').strip()
-        telefone = request.form.get('telefone', '').strip()
-        email    = request.form.get('email', '').strip()
-        endereco = request.form.get('endereco', '').strip()
-        bairro   = request.form.get('bairro', '').strip()
+        nome        = request.form.get('nome', '').strip()
+        telefone    = request.form.get('telefone', '').strip()
+        email       = request.form.get('email', '').strip()
+        endereco    = request.form.get('endereco', '').strip()
+        complemento = request.form.get('complemento', '').strip()
+        bairro      = request.form.get('bairro', '').strip()
+
+        # Monta endereço completo incluindo complemento
+        partes_end = [p for p in [endereco, complemento, bairro] if p]
+        endereco_completo = ', '.join(partes_end)
 
         servico          = request.form.get('servico', '').strip()
         data             = formatar_data_para_br(request.form.get('data', '').strip())
@@ -699,13 +704,13 @@ def agendamento_cliente_publico():
             id_cliente = cliente_existente['id']
             db.execute(
                 'UPDATE clientes SET nome=?, email=?, endereco=? WHERE id=?',
-                (nome, email, f'{endereco}, {bairro}'.strip(', '), id_cliente)
+                (nome, email, f'{endereco_completo}', id_cliente)
             )
         else:
             # RETURNING id é PostgreSQL — evita lastrowid que não existe no psycopg2
             row = db.execute(
                 'INSERT INTO clientes (nome, telefone, email, endereco) VALUES (?, ?, ?, ?) RETURNING id',
-                (nome, telefone, email, f'{endereco}, {bairro}'.strip(', '))
+                (nome, telefone, email, f'{endereco_completo}')
             ).fetchone()
             id_cliente = row['id']
 

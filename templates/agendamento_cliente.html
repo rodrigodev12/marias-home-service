@@ -770,12 +770,19 @@
       <div class="mb-3">
         <label for="endereco" class="form-label">Endereço</label>
         <input type="text" id="endereco" name="endereco" class="form-control"
-               placeholder="Rua, número, complemento" autocomplete="street-address">
+               placeholder="Rua e número" autocomplete="street-address">
       </div>
 
-      <div class="mb-1">
-        <label for="bairro" class="form-label">Bairro</label>
-        <input type="text" id="bairro" name="bairro" class="form-control" placeholder="Ex: Cohab">
+      <div class="row g-3 mb-3">
+        <div class="col-sm-6">
+          <label for="complemento" class="form-label">Complemento</label>
+          <input type="text" id="complemento" name="complemento" class="form-control"
+                 placeholder="Apto, bloco, casa..." autocomplete="address-line2">
+        </div>
+        <div class="col-sm-6">
+          <label for="bairro" class="form-label">Bairro</label>
+          <input type="text" id="bairro" name="bairro" class="form-control" placeholder="Ex: Cohab">
+        </div>
       </div>
 
       <!-- ── Detalhes do Serviço ── -->
@@ -1224,11 +1231,12 @@
     });
 
     function preencherResumo() {
-      const nome     = document.getElementById('nome').value.trim();
-      const tel      = document.getElementById('telefone').value.trim();
-      const email    = document.getElementById('email').value.trim();
-      const endereco = document.getElementById('endereco').value.trim();
-      const bairro   = document.getElementById('bairro').value.trim();
+      const nome        = document.getElementById('nome').value.trim();
+      const tel         = document.getElementById('telefone').value.trim();
+      const email       = document.getElementById('email').value.trim();
+      const endereco    = document.getElementById('endereco').value.trim();
+      const complemento = document.getElementById('complemento').value.trim();
+      const bairro      = document.getElementById('bairro').value.trim();
       const servico  = document.querySelector('input[name="servico"]:checked')?.value || '—';
       const periodo  = document.querySelector('input[name="periodo"]:checked')?.value || '—';
       const data     = document.getElementById('data').value;
@@ -1242,7 +1250,7 @@
         dataFormatada = `${d}/${m}/${y}`;
       }
 
-      const enderecoCompleto = [endereco, bairro].filter(Boolean).join(', ') || '—';
+      const enderecoCompleto = [endereco, complemento, bairro].filter(Boolean).join(', ') || '—';
       const valorNum = parseFloat(valor) || 0;
 
       const linhas = [
