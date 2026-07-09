@@ -496,6 +496,16 @@
 
     .btn-submit:active:not(:disabled) { transform: translateY(0); }
 
+    @keyframes unlockPulse {
+      0%   { box-shadow: 0 0 0 0 rgba(255,107,0,.7); transform: scale(1); }
+      50%  { box-shadow: 0 0 0 12px rgba(255,107,0,0); transform: scale(1.02); }
+      100% { box-shadow: 0 0 0 0 rgba(255,107,0,0); transform: scale(1); }
+    }
+
+    .btn-unlock-pulse {
+      animation: unlockPulse .55s ease-out;
+    }
+
     .btn-submit:disabled {
       opacity: .65;
       cursor: not-allowed;
@@ -868,7 +878,7 @@
         <label class="chip-label pagamento-label">
           <input type="radio" name="forma_pagamento" value="Cartão de Crédito" required aria-required="true">
           <span><i class="bi bi-credit-card text-primary fs-5" aria-hidden="true"></i> Cartão de Crédito</span>
-          <small class="text-muted" style="font-size:.7rem;">Até 3x sem juros</small>
+          <small class="text-muted" style="font-size:.7rem;">Pagamento online seguro</small>
         </label>
       </div>
 
@@ -885,7 +895,7 @@
 
       <button type="button" id="btnAbrirResumo" class="btn btn-submit" disabled aria-disabled="true">
         <span class="btn-text">
-          <i class="bi bi-shield-lock-fill me-2" aria-hidden="true"></i>Ir para Pagamento Seguro
+          <i class="bi bi-calendar-check-fill me-2" aria-hidden="true"></i>Solicitar Agendamento
         </span>
         <span class="btn-spinner">
           <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
@@ -1047,25 +1057,37 @@
     }
 
     function validarFormularioCompleto() {
-      const nome     = document.getElementById('nome').value.trim();
-      const tel      = document.getElementById('telefone').value.replace(/\D/g,'');
-      const servico  = document.querySelector('input[name="servico"]:checked');
-      const periodo  = document.querySelector('input[name="periodo"]:checked');
-      const data     = document.getElementById('data').value;
-      const pagto    = document.querySelector('input[name="forma_pagamento"]:checked');
+      const nome       = document.getElementById('nome').value.trim();
+      const tel        = document.getElementById('telefone').value.replace(/\D/g,'');
+      const servico    = document.querySelector('input[name="servico"]:checked');
+      const periodo    = document.querySelector('input[name="periodo"]:checked');
+      const data       = document.getElementById('data').value;
+      const pagto      = document.querySelector('input[name="forma_pagamento"]:checked');
       const isDiarista = servico?.value === 'Diarista';
-      const quartos  = quartosSelect.value;
+      const quartos    = quartosSelect.value;
 
-      const ok = nome.length > 2
-               && tel.length >= 10
-               && servico
-               && periodo
-               && data
-               && pagto
-               && (!isDiarista || quartos);
+      // Campos mínimos obrigatórios (sem pagamento)
+      const camposOk = nome.length > 2
+                    && tel.length >= 10
+                    && servico
+                    && periodo
+                    && data
+                    && (!isDiarista || quartos);
 
+      // Pagamento é o gatilho final — libera o botão
+      const ok = camposOk && pagto;
+
+      const eraDesabilitado = btnAbrirResumo.disabled;
       btnAbrirResumo.disabled = !ok;
       btnAbrirResumo.setAttribute('aria-disabled', String(!ok));
+
+      // Pulso visual ao desbloquear pela primeira vez
+      if (eraDesabilitado && ok) {
+        btnAbrirResumo.classList.remove('btn-unlock-pulse');
+        void btnAbrirResumo.offsetWidth;
+        btnAbrirResumo.classList.add('btn-unlock-pulse');
+      }
+
       return ok;
     }
 
@@ -1153,6 +1175,7 @@
       label.querySelector('input').addEventListener('change', function () {
         document.querySelectorAll('.pagamento-label').forEach(l => l.classList.remove('selected'));
         if (this.checked) label.classList.add('selected');
+        // Pagamento selecionado → tenta liberar o botão
         validarFormularioCompleto();
       });
     });
