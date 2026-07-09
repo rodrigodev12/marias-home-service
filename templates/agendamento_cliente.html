@@ -459,6 +459,47 @@
 
     #aviso-fds.show { display: flex; align-items: center; gap: .5rem; }
 
+    /* ── Detalhes do Serviço Dinâmico ── */
+    .detalhes-servico-card {
+      display: none;
+      background: #f0fdf4;
+      border: 1.5px solid #bbf7d0;
+      border-radius: 16px;
+      padding: 1.1rem 1.25rem;
+      margin-bottom: 1.25rem;
+      font-size: .85rem;
+      color: #166534;
+      animation: fadeSlideDown .35s cubic-bezier(.34, 1.2, .64, 1);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(22, 101, 52, 0.04);
+    }
+
+    .detalhes-servico-card.show {
+      display: block;
+    }
+
+    .detalhes-servico-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 4px; height: 100%;
+      background: linear-gradient(180deg, #22c55e, #16a34a);
+      border-radius: 16px 0 0 16px;
+    }
+
+    .detalhes-servico-titulo {
+      font-size: .78rem;
+      font-weight: 700;
+      color: #166534;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      margin-bottom: .5rem;
+      display: flex;
+      align-items: center;
+      gap: .35rem;
+    }
+
     /* ── Botão de envio ── */
     .btn-submit {
       width: 100%;
@@ -820,6 +861,14 @@
         {% endfor %}
       </div>
 
+      <!-- Card dinâmico de detalhes do serviço selecionado -->
+      <div id="detalhes-servico-selecionado" class="detalhes-servico-card" aria-live="polite">
+        <div class="detalhes-servico-titulo">
+          <i class="bi bi-info-circle-fill"></i> O que está incluso no serviço
+        </div>
+        <div id="detalhes-servico-texto"></div>
+      </div>
+
       <div id="quartos-wrapper" class="mb-3">
         <label for="quartos" class="form-label">Quantos quartos tem no seu imóvel? <span class="text-danger" aria-hidden="true">*</span></label>
         <select id="quartos" name="quartos" class="form-select" aria-required="true">
@@ -1092,11 +1141,22 @@
     }
 
     // ── Chips de serviço ──
+    const detalhesServicoCard = document.getElementById('detalhes-servico-selecionado');
+    const detalhesServicoTexto = document.getElementById('detalhes-servico-texto');
+
     document.querySelectorAll('#chip-servicos .chip-label').forEach(label => {
       const input = label.querySelector('input[type="radio"]');
       input.addEventListener('change', function () {
         document.querySelectorAll('#chip-servicos .chip-label').forEach(l => l.classList.remove('selected'));
         if (this.checked) label.classList.add('selected');
+
+        // Mostra e anima o card de detalhes do serviço
+        if (this.checked && DETALHES_SERVICOS[this.value]) {
+          detalhesServicoTexto.innerHTML = DETALHES_SERVICOS[this.value];
+          detalhesServicoCard.classList.add('show');
+        } else {
+          detalhesServicoCard.classList.remove('show');
+        }
 
         if (this.value === 'Diarista') {
           quartosWrapper.classList.add('show');
