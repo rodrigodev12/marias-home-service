@@ -804,6 +804,12 @@ def cadastro_prestadora_sucesso():
     return render_template('cadastro_prestadora_sucesso.html')
 
 
+@app.errorhandler(500)
+def handle_500(e):
+    import traceback
+    return f"<h1>Erro Interno do Servidor (Debug)</h1><pre>{traceback.format_exc()}</pre>", 500
+
+
 # ---------------------------------------------------------------------------
 # ENTRY POINT
 # ---------------------------------------------------------------------------
