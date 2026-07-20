@@ -1210,10 +1210,15 @@
           wrapper.classList.add('selected');
         }
 
-        // Reseta o seletor de quartos da diarista se ele for ocultado
+        // Mostra/oculta e reseta o seletor de quartos da diarista
         const diaristaSelecionada = document.querySelector('input[name="servico"]:checked')?.value === 'Diarista';
-        if (!diaristaSelecionada && quartosSelect) {
-          quartosSelect.value = '';
+        if (diaristaSelecionada) {
+          if (quartosWrapper) quartosWrapper.classList.add('show');
+        } else {
+          if (quartosWrapper) {
+            quartosWrapper.classList.remove('show');
+            if (quartosSelect) quartosSelect.value = '';
+          }
         }
 
         atualizarOrcamento();
